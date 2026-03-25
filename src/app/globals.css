@@ -1,0 +1,269 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+@import "tailwindcss";
+
+:root {
+  --orange: #FF6B00;
+  --orange-glow: #FF8C00;
+  --red: #FF2020;
+  --blue: #00D4FF;
+  --blue-dark: #0066FF;
+  --yellow: #FFD700;
+  --dark-bg: #04050A;
+  --dark-card: #0C0E1A;
+  --dark-card2: #10121F;
+  --border-dim: rgba(255,255,255,0.06);
+  --text-muted: rgba(255,255,255,0.55);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  scroll-behavior: smooth;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: var(--dark-bg);
+  color: #ffffff;
+  font-family: 'Outfit', sans-serif;
+  overflow-x: hidden;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #07080f; }
+::-webkit-scrollbar-thumb { background: var(--orange); border-radius: 3px; }
+
+/* Glow utilities */
+.glow-orange { text-shadow: 0 0 20px rgba(255, 107, 0, 0.8), 0 0 40px rgba(255, 107, 0, 0.4); }
+.glow-blue { text-shadow: 0 0 20px rgba(0, 212, 255, 0.8), 0 0 40px rgba(0, 212, 255, 0.4); }
+.glow-red { text-shadow: 0 0 20px rgba(255, 32, 32, 0.8), 0 0 40px rgba(255, 32, 32, 0.4); }
+
+.gradient-text {
+  background: linear-gradient(135deg, #FF6B00, #FF2020, #00D4FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-orange {
+  background: linear-gradient(135deg, #FFD700, #FF6B00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-blue {
+  background: linear-gradient(135deg, #00D4FF, #0066FF);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Card styles */
+.card-glow {
+  background: var(--dark-card);
+  border: 1px solid var(--border-dim);
+  border-radius: 20px;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.card-glow::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,107,0,0.05), transparent, rgba(0,212,255,0.05));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-glow:hover::before { opacity: 1; }
+.card-glow:hover {
+  border-color: rgba(255,107,0,0.3);
+  transform: translateY(-4px);
+  box-shadow: 0 20px 60px rgba(255,107,0,0.15);
+}
+
+/* Button styles */
+.btn-primary {
+  background: linear-gradient(135deg, #FF6B00, #FF2020);
+  color: white;
+  padding: 14px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  position: relative;
+  overflow: hidden;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 100%; height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+  transition: left 0.5s ease;
+}
+
+.btn-primary:hover::before { left: 100%; }
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(255,107,0,0.5);
+}
+
+.btn-secondary {
+  background: transparent;
+  color: white;
+  padding: 13px 32px;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  backdrop-filter: blur(10px);
+}
+
+.btn-secondary:hover {
+  border-color: var(--blue);
+  color: var(--blue);
+  box-shadow: 0 0 20px rgba(0,212,255,0.2);
+  transform: translateY(-2px);
+}
+
+/* Section label */
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255,107,0,0.1);
+  border: 1px solid rgba(255,107,0,0.3);
+  border-radius: 50px;
+  padding: 6px 16px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--orange);
+  margin-bottom: 16px;
+}
+
+/* Animated background particles */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  33% { transform: translateY(-20px) rotate(5deg); }
+  66% { transform: translateY(-10px) rotate(-3deg); }
+}
+
+@keyframes pulse-glow {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+@keyframes drift {
+  0% { transform: translateX(0) translateY(0); }
+  25% { transform: translateX(30px) translateY(-20px); }
+  50% { transform: translateX(15px) translateY(-40px); }
+  75% { transform: translateX(-10px) translateY(-20px); }
+  100% { transform: translateX(0) translateY(0); }
+}
+
+@keyframes spin-slow {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slide-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+.float-anim { animation: float 6s ease-in-out infinite; }
+.float-anim-delay { animation: float 8s ease-in-out infinite 2s; }
+.pulse-glow { animation: pulse-glow 2s ease-in-out infinite; }
+.drift-anim { animation: drift 12s ease-in-out infinite; }
+
+/* Divider */
+.neon-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,107,0,0.5), rgba(0,212,255,0.5), transparent);
+  margin: 0 auto;
+}
+
+/* ====== INTERACTIVE FLOW STYLES ====== */
+
+/* Custom Range Slider */
+.spice-slider {
+  -webkit-appearance: none;
+  width: 100%;
+  background: transparent;
+  outline: none;
+}
+.spice-slider::-webkit-slider-runnable-track {
+  width: 100%;
+  height: 6px;
+  background: rgba(255,255,255,0.1);
+  border-radius: 4px;
+}
+.spice-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  height: 24px;
+  width: 24px;
+  border-radius: 50%;
+  background: #FF6B00;
+  cursor: pointer;
+  border: 4px solid #07080f;
+  margin-top: -9px;
+  box-shadow: 0 0 10px rgba(255,107,0,0.5);
+  transition: transform 0.1s;
+}
+.spice-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+/* Animations */
+@keyframes slideUpFade {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes popIn {
+  0% { opacity: 0; transform: scale(0.95); }
+  100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes floatBubble {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-3px); }
+}
+
+/* Selection Cards */
+.vibe-card {
+  transition: all 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.vibe-card:hover {
+  transform: translateY(-2px);
+  background: rgba(255,107,0,0.08);
+  border-color: rgba(255,107,0,0.3);
+}
+.vibe-card:active {
+  transform: scale(0.98);
+}
