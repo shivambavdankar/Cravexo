@@ -1,10 +1,5 @@
 export default function VisionSection() {
-  const milestones = [
-    { phase: 'Phase 1', title: 'Brand Launch', desc: 'Introducing Cravexo to the world. Building the community.', active: true },
-    { phase: 'Phase 2', title: 'Mr. Fry Beta', desc: 'First AI interactions. Early adopter craving personalization.', active: false },
-    { phase: 'Phase 3', title: 'Full Platform', desc: 'Complete AI-powered food discovery experience.', active: false },
-    { phase: 'Phase 4', title: 'Ecosystem', desc: 'Partnerships, integrations, and the future of food discovery.', active: false },
-  ];
+
 
   return (
     <section id="vision" style={{ padding: '120px 24px', position: 'relative', overflow: 'hidden' }}>
@@ -106,43 +101,8 @@ export default function VisionSection() {
           ))}
         </div>
 
-        {/* Roadmap */}
-        <div style={{ marginBottom: '0' }}>
-          <h3 style={{ textAlign: 'center', fontWeight: 800, fontSize: '1.3rem', marginBottom: '40px', color: 'rgba(255,255,255,0.7)' }}>
-            The Road Ahead
-          </h3>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px' }}>
-            {milestones.map((m) => (
-              <div key={m.phase} style={{
-                background: m.active ? 'rgba(255,107,0,0.08)' : 'rgba(255,255,255,0.02)',
-                border: `1px solid ${m.active ? 'rgba(255,107,0,0.3)' : 'rgba(255,255,255,0.06)'}`,
-                borderRadius: '16px',
-                padding: '24px',
-              }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '12px' }}>
-                  <span style={{
-                    padding: '3px 10px',
-                    background: m.active ? 'rgba(255,107,0,0.2)' : 'rgba(255,255,255,0.05)',
-                    border: `1px solid ${m.active ? 'rgba(255,107,0,0.4)' : 'rgba(255,255,255,0.08)'}`,
-                    borderRadius: '20px',
-                    fontSize: '0.7rem', fontWeight: 700, letterSpacing: '0.05em',
-                    color: m.active ? '#FF6B00' : 'rgba(255,255,255,0.4)',
-                  }}>{m.phase}</span>
-                  {m.active && (
-                    <span style={{
-                      width: '6px', height: '6px', borderRadius: '50%',
-                      background: '#00FF88', boxShadow: '0 0 8px #00FF88',
-                      display: 'inline-block',
-                      animation: 'pulse-glow 1.5s ease-in-out infinite',
-                    }} />
-                  )}
-                </div>
-                <p style={{ fontWeight: 700, fontSize: '0.95rem', marginBottom: '6px', color: m.active ? '#fff' : 'rgba(255,255,255,0.4)' }}>{m.title}</p>
-                <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{m.desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
+
+
       </div>
     </section>
   );
