@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 const PLAN_LIMITS: Record<string, number | null> = {
-  lite:      10,
-  dedicated: 30,
+  lite:      null, // unlimited — open access for all users
+  dedicated: null, // unlimited
   fam:       null, // unlimited
 };
 
@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
     }
 
     const plan: string = (row.subscription_plan ?? 'lite').toLowerCase();
-    const limit = PLAN_LIMITS[plan] ?? 10;
+    const limit = PLAN_LIMITS[plan] ?? null; // null = unlimited
     const currentMonth = new Date().toISOString().slice(0, 7); // 'YYYY-MM'
     const storedMonth = row.interactions_reset_month ?? currentMonth;
 
