@@ -2,6 +2,8 @@
 import Image from 'next/image';
 
 export default function HeroSection() {
+  const openMrFry = () => window.dispatchEvent(new CustomEvent('mrfry:open'));
+
   return (
     <section
       id="home"
@@ -33,23 +35,16 @@ export default function HeroSection() {
         background: 'radial-gradient(circle, rgba(0,212,255,0.12), transparent 70%)',
         borderRadius: '50%', filter: 'blur(40px)',
       }} className="float-anim-delay" />
-      <div style={{
-        position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-        width: '600px', height: '600px',
-        background: 'radial-gradient(circle, rgba(255,32,32,0.04), transparent 70%)',
-        borderRadius: '50%', filter: 'blur(60px)',
-        pointerEvents: 'none',
-      }} />
 
       {/* Floating food emojis */}
-      {['🍔', '🍟', '🌮', '🍕', '🤖', '⚡'].map((emoji, i) => (
+      {['🍔', '🍟', '🌮', '🍕', '⚡'].map((emoji, i) => (
         <div key={i} style={{
           position: 'absolute',
-          top: `${15 + i * 13}%`,
+          top: `${15 + i * 15}%`,
           left: i % 2 === 0 ? `${2 + i * 2}%` : undefined,
           right: i % 2 !== 0 ? `${3 + i * 2}%` : undefined,
-          fontSize: `${1.2 + (i % 3) * 0.4}rem`,
-          opacity: 0.25,
+          fontSize: `${1.1 + (i % 3) * 0.3}rem`,
+          opacity: 0.2,
           animation: `float ${5 + i}s ease-in-out infinite ${i * 0.7}s`,
           userSelect: 'none', pointerEvents: 'none',
         }}>
@@ -58,16 +53,19 @@ export default function HeroSection() {
       ))}
 
       {/* Main content */}
-      <div style={{
-        maxWidth: '1280px', margin: '0 auto',
-        padding: '60px 24px',
-        display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
-        gap: '60px',
-        alignItems: 'center',
-        width: '100%',
-        position: 'relative', zIndex: 2,
-      }} className="hero-grid">
+      <div
+        style={{
+          maxWidth: '1280px', margin: '0 auto',
+          padding: '60px 24px',
+          display: 'grid',
+          gridTemplateColumns: '1fr 1fr',
+          gap: '60px',
+          alignItems: 'center',
+          width: '100%',
+          position: 'relative', zIndex: 2,
+        }}
+        className="hero-grid"
+      >
 
         {/* Left content */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -83,52 +81,67 @@ export default function HeroSection() {
             lineHeight: 1.1,
             letterSpacing: '-0.02em',
           }}>
-            The Future of
-            <br /><span className="gradient-text">Food</span>
-            <br />Discovery Is Here!
+            The Future of<br />
+            <span className="gradient-text">Food</span><br />
+            Discovery Is Here!
           </h1>
 
-          {/* Subheadline */}
+          {/* Tight subheadline */}
           <p style={{
-            fontSize: '1.15rem',
-            color: 'rgba(255,255,255,0.65)',
-            lineHeight: 1.7,
-            maxWidth: '520px',
+            fontSize: '1.1rem',
+            color: 'rgba(255,255,255,0.6)',
+            lineHeight: 1.65,
+            maxWidth: '480px',
           }}>
-            Cravexo blends AI, cravings, and food discovery into a whole new experience.
-            Personalized picks, mystery moments, and a future-forward food journey.
+            Tell Mr. Fry what you&apos;re craving. Get your perfect meal instantly — personalized, local, and delivered to your door.
           </p>
 
-          {/* Mr. Fry teaser */}
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '12px',
-            padding: '12px 20px',
-            background: 'rgba(0,212,255,0.08)',
-            border: '1px solid rgba(0,212,255,0.2)',
-            borderRadius: '12px',
-            width: 'fit-content',
-          }}>
-            <span style={{ fontSize: '1.5rem' }}>🤖</span>
-            <div>
-              <p style={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.5)', marginBottom: '2px' }}>Powered by</p>
-              <p style={{ fontWeight: 700, color: '#00D4FF', fontSize: '0.95rem' }}>Mr. Fry — Your AI Food Companion</p>
-            </div>
-          </div>
+          {/* PRIMARY CTA — Meet Mr. Fry */}
+          <div style={{ display: 'flex', gap: '14px', flexWrap: 'wrap', marginTop: '4px' }}>
+            <button
+              id="hero-meetmrfry-cta"
+              onClick={openMrFry}
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '10px',
+                padding: '16px 32px',
+                background: 'linear-gradient(135deg, #FF6B00, #FF2020)',
+                border: 'none', borderRadius: '14px',
+                color: '#fff', fontWeight: 800, fontSize: '1.05rem',
+                cursor: 'pointer', fontFamily: 'Outfit, sans-serif',
+                boxShadow: '0 8px 32px rgba(255,107,0,0.45)',
+                transition: 'transform .18s, box-shadow .18s',
+                letterSpacing: '-0.01em',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.transform = 'translateY(-2px)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(255,107,0,0.6)'; }}
+              onMouseLeave={e => { e.currentTarget.style.transform = 'translateY(0)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,107,0,0.45)'; }}
+            >
+              <span style={{ fontSize: '1.2rem' }}>🍟</span>
+              Talk to Mr. Fry
+            </button>
 
-          {/* CTAs */}
-          <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', marginTop: '8px' }}>
-            <a href="#concept" className="btn-primary" id="hero-explore-cta">
+            {/* SECONDARY CTA — Explore */}
+            <a
+              href="#concept"
+              id="hero-explore-cta"
+              style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                padding: '16px 24px',
+                background: 'rgba(255,255,255,.05)',
+                border: '1px solid rgba(255,255,255,.15)',
+                borderRadius: '14px',
+                color: 'rgba(255,255,255,.65)', fontWeight: 600, fontSize: '0.95rem',
+                textDecoration: 'none', fontFamily: 'Outfit, sans-serif',
+                transition: 'border-color .18s, color .18s',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.3)'; e.currentTarget.style.color = '#fff'; }}
+              onMouseLeave={e => { e.currentTarget.style.borderColor = 'rgba(255,255,255,.15)'; e.currentTarget.style.color = 'rgba(255,255,255,.65)'; }}
+            >
               Explore the Concept
             </a>
-            <a href="#mrfry" className="btn-secondary" id="hero-meetmrfry-cta">
-              Meet Mr. Fry →
-            </a>
           </div>
 
-          {/* Stats row */}
-          <div style={{ display: 'flex', gap: '32px', marginTop: '16px', flexWrap: 'wrap' }}>
+          {/* Social proof row */}
+          <div style={{ display: 'flex', gap: '28px', marginTop: '8px', flexWrap: 'wrap' }}>
             {[
               { val: 'AI', label: 'Powered Engine' },
               { val: '∞', label: 'Craving Combos' },
@@ -136,13 +149,13 @@ export default function HeroSection() {
             ].map((stat) => (
               <div key={stat.label} style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
                 <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#FF6B00' }}>{stat.val}</span>
-                <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>{stat.label}</span>
+                <span style={{ fontSize: '0.78rem', color: 'rgba(255,255,255,0.45)' }}>{stat.label}</span>
               </div>
             ))}
           </div>
         </div>
 
-        {/* Right: visual */}
+        {/* Right: Mr. Fry interactive card */}
         <div style={{
           display: 'flex',
           justifyContent: 'center',
@@ -159,51 +172,87 @@ export default function HeroSection() {
             animation: 'spin-slow 10s linear infinite',
           }} />
 
-          {/* Logo card */}
-          <div style={{
-            position: 'relative',
-            zIndex: 2,
-            background: 'rgba(12,14,26,0.8)',
-            border: '1px solid rgba(255,107,0,0.3)',
-            borderRadius: '24px',
-            padding: '32px',
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '16px',
-            backdropFilter: 'blur(20px)',
-            boxShadow: '0 0 60px rgba(255,107,0,0.2), 0 0 120px rgba(0,212,255,0.1)',
-          }} className="float-anim">
-            <Image
-              src="/logo.jpg"
-              alt="Cravexo"
-              width={280}
-              height={280}
-              style={{ borderRadius: '16px', objectFit: 'cover' }}
-              priority
-            />
-            <div style={{ textAlign: 'center' }}>
-              <p style={{
-                fontSize: '1.5rem', fontWeight: 900,
-                background: 'linear-gradient(135deg, #FFD700, #FF6B00)',
-                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
-              }}>CraveXo</p>
-              <p style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)' }}>AI Food Discovery Platform</p>
+          {/* Clickable Mr. Fry Card */}
+          <button
+            onClick={openMrFry}
+            className="float-anim mrfry-hero-card"
+            style={{
+              position: 'relative', zIndex: 2,
+              background: 'rgba(12,14,26,0.85)',
+              border: '1px solid rgba(255,107,0,0.4)',
+              borderRadius: '24px',
+              padding: '32px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '16px',
+              backdropFilter: 'blur(20px)',
+              boxShadow: '0 0 60px rgba(255,107,0,0.25), 0 0 120px rgba(0,212,255,0.1)',
+              cursor: 'pointer',
+              fontFamily: 'Outfit, sans-serif',
+              transition: 'border-color .2s, box-shadow .2s, transform .2s',
+            }}
+            onMouseEnter={e => {
+              e.currentTarget.style.borderColor = 'rgba(255,107,0,0.8)';
+              e.currentTarget.style.boxShadow = '0 0 80px rgba(255,107,0,0.45), 0 0 160px rgba(0,212,255,0.15)';
+              e.currentTarget.style.transform = 'translateY(-4px) scale(1.01)';
+            }}
+            onMouseLeave={e => {
+              e.currentTarget.style.borderColor = 'rgba(255,107,0,0.4)';
+              e.currentTarget.style.boxShadow = '0 0 60px rgba(255,107,0,0.25), 0 0 120px rgba(0,212,255,0.1)';
+              e.currentTarget.style.transform = 'translateY(0) scale(1)';
+            }}
+          >
+            {/* Mr. Fry avatar */}
+            <div style={{ position: 'relative', width: '200px', height: '200px' }}>
+              <div style={{
+                position: 'absolute', inset: '-6px', borderRadius: '50%',
+                background: 'conic-gradient(from 0deg, #FF6B00, #FF2020, #00D4FF, #FF6B00)',
+                animation: 'spin-slow 3s linear infinite',
+              }} />
+              <Image
+                src="/mrfry.png"
+                alt="Mr. Fry"
+                fill
+                style={{ borderRadius: '50%', objectFit: 'cover', border: '3px solid #07080F' }}
+                priority
+              />
             </div>
 
-          </div>
+            <div style={{ textAlign: 'center' }}>
+              <p style={{
+                fontSize: '1.3rem', fontWeight: 900,
+                background: 'linear-gradient(135deg, #FF6B00, #FFD700)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text',
+                marginBottom: '4px',
+              }}>Mr. Fry</p>
+              <p style={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.5)', marginBottom: '14px' }}>Your AI Food Companion</p>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: '8px',
+                background: 'linear-gradient(135deg, rgba(255,107,0,0.2), rgba(255,32,32,0.1))',
+                border: '1px solid rgba(255,107,0,0.4)',
+                borderRadius: '30px',
+                padding: '8px 18px',
+                color: '#FF6B00', fontWeight: 700, fontSize: '0.85rem',
+              }}>
+                <span style={{ width: '6px', height: '6px', borderRadius: '50%', background: '#00FF88', display: 'inline-block', boxShadow: '0 0 6px #00FF88' }} />
+                Tap to start chatting
+              </div>
+            </div>
+          </button>
         </div>
       </div>
 
       {/* Scroll indicator */}
       <div style={{
-        position: 'absolute', bottom: '32px', left: '50%', transform: 'translateX(-50%)',
-        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-        color: 'rgba(255,255,255,0.4)', fontSize: '0.75rem',
+        position: 'absolute', bottom: '28px', left: '50%', transform: 'translateX(-50%)',
+        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px',
+        color: 'rgba(255,255,255,0.3)', fontSize: '0.72rem',
         animation: 'float 2s ease-in-out infinite',
+        pointerEvents: 'none',
       }}>
         <span>Scroll to explore</span>
-        <span style={{ fontSize: '1.2rem' }}>↓</span>
+        <span style={{ fontSize: '1rem' }}>↓</span>
       </div>
 
       <style>{`
@@ -213,6 +262,7 @@ export default function HeroSection() {
         }
         @media (max-width: 900px) {
           .hero-grid { grid-template-columns: 1fr !important; gap: 40px !important; }
+          .mrfry-hero-card { width: 100% !important; max-width: 340px !important; }
         }
       `}</style>
     </section>
