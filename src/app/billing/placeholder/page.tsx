@@ -1,10 +1,10 @@
 'use client';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { PLANS, PlanId } from '@/app/context/AccountContext';
 import Image from 'next/image';
 
-export default function BillingPlaceholderPage() {
+function BillingContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const planId = searchParams.get('plan') as PlanId;
@@ -85,5 +85,13 @@ export default function BillingPlaceholderPage() {
         </button>
       </div>
     </div>
+  );
+}
+
+export default function BillingPlaceholderPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#07080F', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff' }}>Loading Payment Gateway...</div>}>
+      <BillingContent />
+    </Suspense>
   );
 }
