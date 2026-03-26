@@ -123,16 +123,12 @@ export default function MrFryChat() {
   const [loggedRecommendation, setLoggedRecommendation] = useState<string | null>(null);
   const [isReturning, setIsReturning] = useState(false);
 
-  // Auto-scroll: go to TOP when recommendations arrive, BOTTOM for all other wizard steps
+  // Auto-scroll: always scroll to top on every phase transition
   const contentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (!contentRef.current) return;
-    const isRecommendationView = phase === 'recommendation' || phase === 'refinement';
-    contentRef.current.scrollTo({
-      top: isRecommendationView ? 0 : contentRef.current.scrollHeight,
-      behavior: 'smooth',
-    });
-  }, [phase, mrfryText]);
+    contentRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [phase]);
 
   // Load returning profile
   useEffect(() => {
