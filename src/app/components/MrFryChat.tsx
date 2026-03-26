@@ -183,50 +183,8 @@ export default function MrFryChat() {
     setMrfryText(memoryGreeting || (isReturning ? "Welcome back! 🍟 Ready for round two? Tell me where we are hunting today." : defaultGreeting));
   };
 
-  const logInteractionIfNeeded = () => {
-    if ((phase === 'recommendation' || phase === 'refinement') && recommendation && user?.email) {
-      const recSignature = JSON.stringify(recommendation.primary.name);
-      if (loggedRecommendation !== recSignature) {
-        setLoggedRecommendation(recSignature); // Deduplicate saves
-        
-        const rec1 = recommendation.primary.name + (recommendation.primary.chain ? ` at ${recommendation.primary.chain}` : '');
-        const rec2 = recommendation.backup.name + (recommendation.backup.chain ? ` at ${recommendation.backup.chain}` : '');
-        
-        let rec3 = null;
-        if (recommendation.mystery) {
-          if (typeof recommendation.mystery === 'string') {
-            rec3 = recommendation.mystery;
-          } else if (recommendation.mystery.name) {
-            rec3 = recommendation.mystery.name + (recommendation.mystery.chain ? ` at ${recommendation.mystery.chain}` : '');
-          }
-        }
-
-        const sb = createClient();
-        sb.auth.getSession().then(({ data }) => {
-          const token = data.session?.access_token;
-          if (token) {
-            fetch('/api/interaction', {
-              method: 'POST',
-              headers: { 
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}` 
-              },
-              body: JSON.stringify({
-                email: user.email,
-                location: profile.location,
-                rec_1: rec1,
-                rec_2: rec2,
-                rec_3: rec3
-              })
-            }).catch(() => {}); // Fire and forget
-          }
-        });
-      }
-    }
-  };
 
   const closeChat = () => {
-    logInteractionIfNeeded();
     // Wipe profile state fully upon closing to guarantee the next fresh interaction is unbiased
     setProfile({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] });
     setIsOpen(false);
@@ -337,6 +295,44 @@ export default function MrFryChat() {
       
       if (data.recommendation) {
         setRecommendation(data.recommendation);
+
+        // --- NEW: Robust Interaction Logging ---
+        // We trigger logging IMMEDIATELY when a recommendation is reached.
+        // This ensures the memory is saved even if the user closes the browser/tab
+        // without clicking the 'X' button.
+        if (user?.email) {
+          const rec1 = data.recommendation.primary.name + (data.recommendation.primary.chain ? ` at ${data.recommendation.primary.chain}` : '');
+          const rec2 = data.recommendation.backup.name + (data.recommendation.backup.chain ? ` at ${data.recommendation.backup.chain}` : '');
+          let rec3 = null;
+          if (data.recommendation.mystery) {
+            if (typeof data.recommendation.mystery === 'string') {
+              rec3 = data.recommendation.mystery;
+            } else if (data.recommendation.mystery.name) {
+              rec3 = data.recommendation.mystery.name + (data.recommendation.mystery.chain ? ` at ${data.recommendation.mystery.chain}` : '');
+            }
+          }
+
+          const sb = createClient();
+          sb.auth.getSession().then(({ data: sessionData }) => {
+            const token = sessionData.session?.access_token;
+            if (token) {
+              fetch('/api/interaction', {
+                method: 'POST',
+                headers: { 
+                  'Content-Type': 'application/json',
+                  'Authorization': `Bearer ${token}` 
+                },
+                body: JSON.stringify({
+                  email: user.email,
+                  location: activeProfile.location,
+                  rec_1: rec1,
+                  rec_2: rec2,
+                  rec_3: rec3
+                })
+              }).catch(() => {});
+            }
+          });
+        }
 
         // Increment usage ONLY upon successful generation for initial requests
         if (!isRefinement && user?.email) {
@@ -683,7 +679,7 @@ export default function MrFryChat() {
               <button disabled={!textRefinement.trim()} onClick={()=>addRefinement(textRefinement)} style={{ padding:'0 16px', background: textRefinement.trim() ? '#FF6B00' : 'rgba(255,255,255,.05)', border:'none', borderRadius:'10px', color:textRefinement.trim()?'#000':'rgba(255,255,255,.3)', fontWeight:700 }}>➔</button>
             </div>
 
-            <button onClick={()=>{logInteractionIfNeeded(); setProfile({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] }); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
+            <button onClick={()=>{setProfile({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] }); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
           </div>
         )}
 
