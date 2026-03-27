@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import { useAccount } from '../context/AccountContext';
-import { createClient } from '@/lib/supabase/client';
+
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
 type Phase = 'init' | 'location' | 'vibe' | 'food_category' | 'food_specifics' | 'spice_budget' | 'fetching' | 'email' | 'recommendation' | 'refinement';
@@ -159,24 +159,16 @@ export default function MrFryChat() {
     
     let memoryGreeting = '';
     try {
-      const sb = createClient();
-      const { data: sessionData } = await sb.auth.getSession();
-      const token = sessionData.session?.access_token;
-
-      if (token) {
-        const res = await fetch('/api/memory', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
-        if (res.ok) {
-          const data = await res.json();
-          if (data.interaction) {
-            const { user_location, rec_1 } = data.interaction;
-            const prevPlace = rec_1 ? rec_1.split(' at ')[0].trim() : 'that spot';
-            memoryGreeting = `Welcome back, ${user.name.split(' ')[0]}! 🍟 How was ${prevPlace} over in ${user_location} from last time? Ready for another round? Tell me where we are hunting today.`;
-          }
+      const res = await fetch(`/api/memory?email=${encodeURIComponent(user.email)}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.interaction) {
+          const { user_location, rec_1 } = data.interaction;
+          const prevPlace = rec_1 ? rec_1.split(' at ')[0].trim() : 'that spot';
+          memoryGreeting = `Welcome back, ${user.name.split(' ')[0]}! 🍟 How was ${prevPlace} over in ${user_location} from last time? Ready for another round? Tell me where we are hunting today.`;
         }
       }
-    } catch (err) {
+    } catch {
       // Fail gracefully and quietly, never breaking the user experience
     }
 
