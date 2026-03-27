@@ -213,6 +213,48 @@ export default function MrFryChat() {
     setMrfryText(fryMsg);
   };
 
+  const PREV_PHASE: Partial<Record<Phase, Phase>> = {
+    vibe:          'location',
+    food_category: 'vibe',
+    food_specifics:'food_category',
+    spice_budget:  'food_specifics',
+  };
+
+  const PREV_MSG: Partial<Record<Phase, string>> = {
+    vibe:          'No worries! Where are we hunting today?',
+    food_category: 'What vibe are you feeling right now?',
+    food_specifics:'Which food style are you going for?',
+    spice_budget:  'Any specific cravings in mind, or keeping it open?',
+  };
+
+  const goBack = () => {
+    const prev = PREV_PHASE[phase];
+    if (!prev) return;
+    setPhase(prev);
+    setMrfryText(PREV_MSG[phase] ?? 'Let me know your preference.');
+  };
+
+  // Reusable back button shown on all pre-recommendation steps
+  const BackButton = ({ show }: { show: boolean }) => {
+    if (!show) return null;
+    return (
+      <button
+        onClick={goBack}
+        style={{
+          display: 'flex', alignItems: 'center', gap: '6px',
+          background: 'none', border: 'none',
+          color: 'rgba(255,255,255,.4)', fontSize: '.82rem', fontWeight: 600,
+          cursor: 'pointer', padding: '0 0 16px 0', fontFamily: 'Outfit, sans-serif',
+          transition: 'color .15s',
+        }}
+        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,.8)'}
+        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,.4)'}
+      >
+        ← Back
+      </button>
+    );
+  };
+
   const handleLocationSubmit = (val: string) => {
     if (!val.trim()) return;
     setProfile(p => ({ ...p, location: val.trim() }));
@@ -461,7 +503,9 @@ export default function MrFryChat() {
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 1: City / Area</h3>
               <input 
-                autoFocus id="loc-input" type="text" placeholder="e.g. Bandra, Mumbai · Koramangala, Bangalore · Delhi NCR" 
+                autoFocus id="loc-input" type="text"
+                defaultValue={profile.location}
+                placeholder="e.g. Bandra, Mumbai · Koramangala, Bangalore · Delhi NCR" 
                 onKeyDown={e => e.key==='Enter' && handleLocationSubmit(e.currentTarget.value)}
                 style={{ width:'100%', padding:'16px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.15)', borderRadius:'12px', color:'#fff', fontSize:'1rem', fontFamily:'Outfit', outline:'none', marginBottom:'12px' }}
                 onFocus={(e)=>e.target.style.borderColor='#FF6B00'} onBlur={(e)=>e.target.style.borderColor='rgba(255,255,255,.15)'}
@@ -475,41 +519,51 @@ export default function MrFryChat() {
 
           {phase === 'vibe' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
+              <BackButton show />
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 2: The Vibe</h3>
               <div style={{ display:'grid', gap:'12px' }}>
-                {VIBES.map(v => (
-                  <button key={v.id} onClick={() => selectVibe(v.id)} className="vibe-card"
-                    style={{ display:'flex', alignItems:'center', gap:'16px', padding:'16px', background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.08)', borderRadius:'16px', cursor:'pointer', textAlign:'left' }}>
-                    <span style={{ fontSize:'2rem', background:'rgba(255,255,255,.05)', width:'56px', height:'56px', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'12px' }}>
-                      {v.icon}
-                    </span>
-                    <div>
-                      <h4 style={{ fontSize:'1rem', color:'#fff', fontWeight:700, marginBottom:'4px' }}>{v.label}</h4>
-                      <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)' }}>{v.desc}</p>
-                    </div>
-                  </button>
-                ))}
+                {VIBES.map(v => {
+                  const isSelected = profile.vibe === v.id;
+                  return (
+                    <button key={v.id} onClick={() => selectVibe(v.id)} className="vibe-card"
+                      style={{ display:'flex', alignItems:'center', gap:'16px', padding:'16px', background: isSelected ? 'rgba(255,107,0,.1)' : 'rgba(255,255,255,.02)', border: `1px solid ${isSelected ? 'rgba(255,107,0,.5)' : 'rgba(255,255,255,.08)'}`, borderRadius:'16px', cursor:'pointer', textAlign:'left', transition:'all .15s' }}>
+                      <span style={{ fontSize:'2rem', background: isSelected ? 'rgba(255,107,0,.15)' : 'rgba(255,255,255,.05)', width:'56px', height:'56px', display:'flex', alignItems:'center', justifyContent:'center', borderRadius:'12px' }}>
+                        {v.icon}
+                      </span>
+                      <div>
+                        <h4 style={{ fontSize:'1rem', color: isSelected ? '#FF6B00' : '#fff', fontWeight:700, marginBottom:'4px' }}>{v.label}</h4>
+                        <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)' }}>{v.desc}</p>
+                      </div>
+                      {isSelected && <span style={{ marginLeft:'auto', color:'#FF6B00', fontSize:'1.1rem' }}>✓</span>}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {phase === 'food_category' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
+              <BackButton show />
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 3: Food Format</h3>
               <div style={{ display:'grid', gap:'12px', marginBottom:'24px' }}>
-                {FOOD_CATEGORIES.map(cat => (
-                  <button key={cat.id} onClick={() => selectCategory(cat.id)}
-                    style={{ padding:'18px 20px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'16px', color:'#fff', fontWeight:700, fontSize:'1.05rem', cursor:'pointer', textAlign:'left', transition:'all .2s' }}
-                    onMouseEnter={e=>(e.currentTarget.style.borderColor='#00D4FF')} onMouseLeave={e=>(e.currentTarget.style.borderColor='rgba(255,255,255,.1)')}>
-                    {cat.label}
-                  </button>
-                ))}
+                {FOOD_CATEGORIES.map(cat => {
+                  const isSelected = profile.category === cat.id;
+                  return (
+                    <button key={cat.id} onClick={() => selectCategory(cat.id)}
+                      style={{ padding:'18px 20px', background: isSelected ? 'rgba(0,212,255,.08)' : 'rgba(255,255,255,.03)', border: `1px solid ${isSelected ? '#00D4FF' : 'rgba(255,255,255,.1)'}`, borderRadius:'16px', color: isSelected ? '#00D4FF' : '#fff', fontWeight:700, fontSize:'1.05rem', cursor:'pointer', textAlign:'left', transition:'all .2s' }}
+                      onMouseEnter={e=>(e.currentTarget.style.borderColor='#00D4FF')} onMouseLeave={e=>(e.currentTarget.style.borderColor = isSelected ? '#00D4FF' : 'rgba(255,255,255,.1)')}>
+                      {isSelected ? '✓ ' : ''}{cat.label}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           )}
 
           {phase === 'food_specifics' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
+              <BackButton show />
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'8px', color:'#fff' }}>Step 3.5: Specific Cravings</h3>
               <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.5)', marginBottom:'20px' }}>Select any that catch your eye, or skip to keep it completely open.</p>
               
@@ -530,6 +584,7 @@ export default function MrFryChat() {
 
           {phase === 'spice_budget' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
+              <BackButton show />
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'24px', color:'#fff' }}>Step 4: The Details</h3>
               
               {/* Spice */}
