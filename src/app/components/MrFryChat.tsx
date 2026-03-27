@@ -164,8 +164,10 @@ export default function MrFryChat() {
         const data = await res.json();
         if (data.interaction) {
           const { user_location, rec_1 } = data.interaction;
-          const prevPlace = rec_1 ? rec_1.split(' at ')[0].trim() : 'that spot';
-          memoryGreeting = `Welcome back, ${user.name.split(' ')[0]}! 🍟 How was ${prevPlace} over in ${user_location} from last time? Ready for another round? Tell me where we are hunting today.`;
+          const firstName = user.name.split(' ')[0];
+          memoryGreeting = rec_1
+            ? `Welcome back, ${firstName}! 🍟 How was ${rec_1} in ${user_location} last time? Ready for another round? Tell me where we are hunting today.`
+            : `Welcome back, ${firstName}! 🍟 Ready for round two? Tell me where we are hunting today.`;
         }
       }
     } catch {
