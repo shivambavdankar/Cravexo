@@ -93,7 +93,7 @@ export default function HeroSection() {
             lineHeight: 1.65,
             maxWidth: '480px',
           }}>
-            Tell Mr. Fry what you&apos;re craving. Get personalized, local food picks instantly — and find the best place to order.
+            Tell Mr. Fry what you&#39;re craving. Get personalized, local food picks instantly and find the best place to order.
           </p>
 
           {/* PRIMARY CTA — Meet Mr. Fry */}
