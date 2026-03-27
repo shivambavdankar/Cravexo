@@ -355,26 +355,21 @@ export default function MrFryChat() {
             }
           }
 
-          const sb = createClient();
-          sb.auth.getSession().then(({ data: sessionData }) => {
-            const token = sessionData.session?.access_token;
-            if (token) {
-              fetch('/api/interaction', {
-                method: 'POST',
-                headers: { 
-                  'Content-Type': 'application/json',
-                  'Authorization': `Bearer ${token}` 
-                },
-                body: JSON.stringify({
-                  email: user.email,
-                  location: activeProfile.location,
-                  rec_1: rec1,
-                  rec_2: rec2,
-                  rec_3: rec3
-                })
-              }).catch(() => {});
-            }
-          });
+          // Robust interaction logging — no auth token dependency, just like /api/usage
+          if (user?.email) {
+            fetch('/api/interaction', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: user.email,
+                location: activeProfile.location,
+                rec_1: rec1,
+                rec_2: rec2,
+                rec_3: rec3
+              })
+            }).catch(() => {}); // silent fail — user already has their recommendation
+          }
+
         }
 
         // Increment usage ONLY upon successful generation for initial requests
