@@ -165,9 +165,15 @@ export default function MrFryChat() {
         if (data.interaction) {
           const { user_location, rec_1 } = data.interaction;
           const firstName = user.name.split(' ')[0];
-          memoryGreeting = rec_1
-            ? `Welcome back, ${firstName}! 🍟 How was ${rec_1} in ${user_location} last time? Ready for another round? Tell me where we are hunting today.`
-            : `Welcome back, ${firstName}! 🍟 Ready for round two? Tell me where we are hunting today.`;
+          if (rec_1) {
+            const atIndex = rec_1.lastIndexOf(' at ');
+            const foodName = atIndex !== -1 ? rec_1.slice(0, atIndex).trim() : rec_1.trim();
+            const restaurantName = atIndex !== -1 ? rec_1.slice(atIndex + 4).trim() : null;
+            const restaurantPart = restaurantName ? ` from ${restaurantName}` : '';
+            memoryGreeting = `Welcome back, ${firstName}! 🍟 How was the ${foodName}${restaurantPart} in ${user_location}? Glad to have you back for another craving. Tell me which location we're exploring today.`;
+          } else {
+            memoryGreeting = `Welcome back, ${firstName}! 🍟 Glad to have you back for another craving. Tell me which location we're exploring today.`;
+          }
         }
       }
     } catch {
