@@ -891,14 +891,6 @@ export default function MrFryChat() {
                 )}
               </div>
 
-              {/* Honest AI Pricing Note */}
-              <div style={{ textAlign:'center', marginTop:'24px', padding:'0 16px', marginBottom:'16px' }}>
-                <p style={{ fontSize:'.75rem', color:'rgba(255,255,255,.35)', lineHeight:1.6, fontFamily:'Outfit, sans-serif' }}>
-                  <span style={{ display:'block', marginBottom:'4px', fontSize:'.85rem' }}>💡 A quick note on pricing</span>
-                  The prices shown are <strong>AI estimates</strong> to give you a rough idea of the cost. Check the actual platforms for live, exact pricing before ordering!
-                </p>
-              </div>
-
             </div>
           )}
 
