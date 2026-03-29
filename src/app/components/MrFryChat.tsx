@@ -821,7 +821,10 @@ export default function MrFryChat() {
                 
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'16px' }}>
                   <span style={{ fontSize:'.7rem', fontWeight:800, letterSpacing:'.1em', textTransform:'uppercase', color:'#FFD700', background:'rgba(255,215,0,.1)', border:'1px solid rgba(255,215,0,.3)', padding:'4px 12px', borderRadius:'20px' }}>🎯 Primary Target</span>
-                  <span style={{ fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'4px 10px', borderRadius:'8px' }}>{recommendation.primary.price}</span>
+                  <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
+                    <span style={{ fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'4px 10px', borderRadius:'8px' }}>~ {recommendation.primary.price}</span>
+                    <span style={{ fontSize:'.6rem', color:'rgba(255,255,255,.3)', fontWeight:600, marginTop:'4px', letterSpacing:'.05em', textTransform:'uppercase' }}>Estimated</span>
+                  </div>
                 </div>
                 
                 <h2 style={{ fontSize:'1.8rem', fontWeight:900, lineHeight:1.1, marginBottom:'6px', color:'#fff' }}>{recommendation.primary.name}</h2>
@@ -848,7 +851,10 @@ export default function MrFryChat() {
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
                     <span style={{ fontSize:'.65rem', fontWeight:700, color:'rgba(255,255,255,.4)', textTransform:'uppercase' }}>🥈 Solid Backup</span>
                     {recommendation.backup.price && (
-                      <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'2px 8px', borderRadius:'6px' }}>{recommendation.backup.price}</span>
+                      <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                        <span style={{ fontSize:'.6rem', color:'rgba(255,255,255,.3)', fontWeight:600, textTransform:'uppercase' }}>Est.</span>
+                        <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'2px 8px', borderRadius:'6px' }}>~ {recommendation.backup.price}</span>
+                      </div>
                     )}
                   </div>
                   <p style={{ fontWeight:700, fontSize:'1rem' }}>{recommendation.backup.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem' }}>at {recommendation.backup.chain}</span></p>
@@ -861,7 +867,10 @@ export default function MrFryChat() {
                     <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
                       <span style={{ fontSize:'.65rem', fontWeight:700, color:'#C896FF', textTransform:'uppercase' }}>🎲 Wildcard Alert</span>
                       {typeof recommendation.mystery !== 'string' && recommendation.mystery.price && (
-                        <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(155,89,182,.2)', padding:'2px 8px', borderRadius:'6px' }}>{recommendation.mystery.price}</span>
+                        <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
+                          <span style={{ fontSize:'.6rem', color:'#C896FF', opacity:0.6, fontWeight:600, textTransform:'uppercase' }}>Est.</span>
+                          <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(155,89,182,.2)', padding:'2px 8px', borderRadius:'6px' }}>~ {recommendation.mystery.price}</span>
+                        </div>
                       )}
                     </div>
                     <div style={{ lineHeight:1.5 }}>
@@ -880,6 +889,14 @@ export default function MrFryChat() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* Honest AI Pricing Note */}
+              <div style={{ textAlign:'center', marginTop:'24px', padding:'0 16px', marginBottom:'16px' }}>
+                <p style={{ fontSize:'.75rem', color:'rgba(255,255,255,.35)', lineHeight:1.6, fontFamily:'Outfit, sans-serif' }}>
+                  <span style={{ display:'block', marginBottom:'4px', fontSize:'.85rem' }}>💡 A quick note on pricing</span>
+                  The prices shown are <strong>AI estimates</strong> to give you a rough idea of the cost. Check the actual platforms for live, exact pricing before ordering!
+                </p>
               </div>
 
             </div>
