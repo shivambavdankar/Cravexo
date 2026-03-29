@@ -5,16 +5,15 @@ import { useAccount } from '../context/AccountContext';
 
 
 // ─── Types ──────────────────────────────────────────────────────────────────────
-type Phase = 'init' | 'location' | 'vibe' | 'food_category' | 'food_specifics' | 'spice_budget' | 'fetching' | 'email' | 'recommendation' | 'refinement';
+type Phase = 'init' | 'location' | 'craving' | 'vibe' | 'spice_budget' | 'fetching' | 'email' | 'recommendation' | 'refinement';
 
 interface DiscoveryProfile {
-  location: string;
-  vibe:     string;
-  category: string;
-  cuisine:  string[];
-  spice:    number;
-  budget:   number;
-  email?:   string;
+  location:    string;
+  craving:     string;
+  vibe:        string;
+  spice:       number;
+  budget:      number;
+  email?:      string;
   refinements: string[];
 }
 
@@ -41,19 +40,30 @@ interface ApiResponse {
 }
 
 const VIBES = [
-  { id:'comfort', icon:'🛋️', label:'Cozy & Comfort', desc:'Heavy, warm, soul-soothing' },
-  { id:'healthy', icon:'🥗', label:'Fresh & Light', desc:'Clean energy, feeling good' },
-  { id:'party',   icon:'🥳', label:'Group Hangout', desc:'Tear-n-share, crowd pleasers' },
-  { id:'late',    icon:'🌙', label:'Late Night', desc:'Greasy, wild, completely necessary' },
-  { id:'wild',    icon:'🎲', label:'Surprise Me', desc:'Take the wheel, Mr. Fry' }
+  { id:'comfort',   icon:'🛋️', label:'Cozy & Comfort',    desc:'Heavy, warm, soul-soothing' },
+  { id:'indulgent', icon:'🔥', label:'Indulgent & Bold',   desc:'Go big, no regrets tonight' },
+  { id:'healthy',   icon:'🥗', label:'Fresh & Light',      desc:'Clean energy, feeling good' },
+  { id:'party',     icon:'🥳', label:'Group Hangout',      desc:'Tear-n-share, crowd pleasers' },
+  { id:'quick',     icon:'⚡', label:'Quick & Easy',       desc:'Fast, satisfying, no fuss' },
+  { id:'late',      icon:'🌙', label:'Late Night',         desc:'Greasy, wild, completely necessary' },
+  { id:'wild',      icon:'🎲', label:'Surprise Me',        desc:'Take the wheel, Mr. Fry' }
 ];
 
-const FOOD_CATEGORIES = [
-  { id: 'comfort', label: '🍛 Comfort & Full Meals', options: ['Biryani', 'North Indian', 'South Indian', 'Thali', 'Khichdi', 'Paneer Meals'] },
-  { id: 'quick', label: '🥪 Quick Bites & Casual', options: ['Burgers', 'Sandwiches', 'Kathi Rolls', 'Shawarma', 'Pizza', 'Pasta', 'Wraps'] },
-  { id: 'street', label: '🛵 Street Food & Snacks', options: ['Chaat', 'Momos', 'Samosa', 'Pav Bhaji', 'Vada Pav', 'Dosa / Idli', 'Paratha'] },
-  { id: 'bold', label: '🔥 Bold & Flavor-Heavy', options: ['Kebabs / Tandoori', 'Indo-Chinese', 'Fried Chicken', 'Spicy Bowls', 'Loaded Fries'] },
-  { id: 'light', label: '🧋 Sweet & Light Beverage', options: ['Mithai / Desserts', 'Bakery', 'Tea / Coffee', 'Milkshakes', 'Healthy Salads', 'Smoothies'] }
+const MAIN_CATEGORIES: { id: string; emoji: string; label: string; subs: string[] }[] = [
+  { id:'burgers',       emoji:'🍔', label:'Burgers',        subs:['Classic Burger','Smash Burger','Chicken Burger','Spicy Burger','Loaded Burger','Veggie Burger'] },
+  { id:'indian',        emoji:'🍛', label:'Indian',         subs:['Biryani','Thali','Kathi Rolls','Curries','Chaat','Dosa','Tandoori','Indo-Chinese','Dal Makhani'] },
+  { id:'pizza',         emoji:'🍕', label:'Pizza',          subs:['Margherita','Pepperoni','BBQ Chicken','Veggie Supreme','White Pizza','Thin Crust'] },
+  { id:'sandwiches',    emoji:'🥪', label:'Sandwiches',     subs:['Fried Chicken Sandwich','Grilled Chicken Sandwich','Club Sandwich','Subs','Wraps','Panini'] },
+  { id:'asian',         emoji:'🍜', label:'Asian',          subs:['Noodles','Fried Rice','Dumplings','Ramen','Bao Buns','Spring Rolls'] },
+  { id:'thai',          emoji:'🌶️', label:'Thai',           subs:['Pad Thai','Thai Curry','Tom Yum','Thai Fried Rice','Thai Street Food'] },
+  { id:'chinese',       emoji:'🥟', label:'Chinese',        subs:['Dim Sum','Kung Pao','Chow Mein','Hot Pot','Ma Po Tofu'] },
+  { id:'mexican',       emoji:'🌮', label:'Mexican',        subs:['Tacos','Burritos','Quesadillas','Nachos','Enchiladas'] },
+  { id:'american',      emoji:'🍗', label:'American',       subs:['BBQ Ribs','Mac & Cheese','Loaded Fries','Fried Chicken','Hot Dog'] },
+  { id:'mediterranean', emoji:'🧆', label:'Mediterranean',  subs:['Shawarma','Falafel','Hummus Bowl','Pita Wraps','Kebabs','Greek Salad'] },
+  { id:'streetfood',    emoji:'🛵', label:'Street Food',    subs:['Momos','Pav Bhaji','Vada Pav','Chaat','Samosa','Paratha','Golgappa'] },
+  { id:'healthy',       emoji:'🥦', label:'Healthy',        subs:['Salads','Grain Bowls','Smoothies','Grilled Protein','Avocado Toast'] },
+  { id:'desserts',      emoji:'🍰', label:'Desserts',       subs:['Cake','Ice Cream','Waffles','Cheesecake','Mithai','Brownies','Churros'] },
+  { id:'drinks',        emoji:'🧃', label:'Drinks',         subs:['Milkshakes','Bubble Tea','Fresh Juice','Lassi','Cold Coffee','Smoothies'] },
 ];
 
 const BUDGET_LABELS = ['$', '$$', '$$$'];
@@ -113,7 +123,7 @@ export default function MrFryChat() {
   const [isGated, setIsGated] = useState(false);
   const [isLimitReached, setIsLimitReached] = useState(false);
   const [phase, setPhase]   = useState<Phase>('init');
-  const [profile, setProfile] = useState<DiscoveryProfile>({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] });
+  const [profile, setProfile] = useState<DiscoveryProfile>({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] });
   
   // UI State
   const [mrfryText, setMrfryText] = useState('Hey! Give me a few details and I will find your perfect meal.');
@@ -127,6 +137,12 @@ export default function MrFryChat() {
   type GeoState = 'idle' | 'loading' | 'success' | 'denied' | 'error' | 'unsupported';
   const [geoState, setGeoState] = useState<GeoState>('idle');
   const [detectedLocation, setDetectedLocation] = useState('');
+
+  // Craving step state (Step 2)
+  const [cravingInput, setCravingInput] = useState('');
+  const [cravingMode, setCravingMode] = useState<'text' | 'guided'>('text');
+  const [selectedMainCat, setSelectedMainCat] = useState<string | null>(null);
+  const [subSelections, setSubSelections] = useState<string[]>([]);
 
   // Auto-scroll: always scroll to top on every phase transition
   const contentRef = useRef<HTMLDivElement>(null);
@@ -249,8 +265,8 @@ export default function MrFryChat() {
 
 
   const closeChat = () => {
-    // Wipe profile state fully upon closing to guarantee the next fresh interaction is unbiased
-    setProfile({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] });
+    setProfile({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] });
+    setCravingInput(''); setCravingMode('text'); setSelectedMainCat(null); setSubSelections([]);
     setIsOpen(false);
   };
 
@@ -272,24 +288,19 @@ export default function MrFryChat() {
 
   // ─── Navigation Handlers ─────────────────────────────────────────────────────
   const nextStep = (next: Phase, fryMsg: string) => {
-    setPhase(next);
-    setMrfryText(fryMsg);
+    setPhase(next); setMrfryText(fryMsg);
   };
 
   const PREV_PHASE: Partial<Record<Phase, Phase>> = {
-    vibe:          'location',
-    food_category: 'vibe',
-    food_specifics:'food_category',
-    spice_budget:  'food_specifics',
+    craving:     'location',
+    vibe:        'craving',
+    spice_budget:'vibe',
   };
-
   const PREV_MSG: Partial<Record<Phase, string>> = {
-    vibe:          'No worries! Where are we hunting today?',
-    food_category: 'What vibe are you feeling right now?',
-    food_specifics:'Which food style are you going for?',
-    spice_budget:  'Any specific cravings in mind, or keeping it open?',
+    craving:     'No worries! Where are we hunting today?',
+    vibe:        "Alright, let's step back. What are you actually craving?",
+    spice_budget:"Cool, what's the vibe you're going for?",
   };
-
   const goBack = () => {
     const prev = PREV_PHASE[phase];
     if (!prev) return;
@@ -297,53 +308,30 @@ export default function MrFryChat() {
     setMrfryText(PREV_MSG[phase] ?? 'Let me know your preference.');
   };
 
-  // Reusable back button shown on all pre-recommendation steps
   const BackButton = ({ show }: { show: boolean }) => {
     if (!show) return null;
     return (
-      <button
-        onClick={goBack}
-        style={{
-          display: 'flex', alignItems: 'center', gap: '6px',
-          background: 'none', border: 'none',
-          color: 'rgba(255,255,255,.4)', fontSize: '.82rem', fontWeight: 600,
-          cursor: 'pointer', padding: '0 0 16px 0', fontFamily: 'Outfit, sans-serif',
-          transition: 'color .15s',
-        }}
-        onMouseEnter={e => e.currentTarget.style.color = 'rgba(255,255,255,.8)'}
-        onMouseLeave={e => e.currentTarget.style.color = 'rgba(255,255,255,.4)'}
-      >
-        ← Back
-      </button>
+      <button onClick={goBack} style={{ display:'flex', alignItems:'center', gap:'6px', background:'none', border:'none', color:'rgba(255,255,255,.4)', fontSize:'.82rem', fontWeight:600, cursor:'pointer', padding:'0 0 16px 0', fontFamily:'Outfit, sans-serif', transition:'color .15s' }}
+        onMouseEnter={e => e.currentTarget.style.color='rgba(255,255,255,.8)'}
+        onMouseLeave={e => e.currentTarget.style.color='rgba(255,255,255,.4)'}>← Back</button>
     );
   };
 
   const handleLocationSubmit = (val: string) => {
     if (!val.trim()) return;
     setProfile(p => ({ ...p, location: val.trim() }));
-    nextStep('vibe', `Got it, exploring ${val.trim()}. What's the exact vibe you're feeling right now?`);
+    nextStep('craving', `Got it, exploring ${val.trim()}. What are you craving? Type anything or let me guide you.`);
+  };
+
+  const handleCravingSubmit = (craving: string) => {
+    if (!craving.trim()) return;
+    setProfile(p => ({ ...p, craving: craving.trim() }));
+    nextStep('vibe', 'Nice. Now tell me — what vibe are you in? This helps me nail the right spot.');
   };
 
   const selectVibe = (v: string) => {
     setProfile(p => ({ ...p, vibe: v }));
-    nextStep('food_category', `Oh yeah, definitely feeling that. What broad style of food are you leaning towards?`);
-  };
-
-  const selectCategory = (catId: string) => {
-    setProfile(p => ({ ...p, category: catId, cuisine: [] }));
-    nextStep('food_specifics', `Got it. Any specific cravings within that, or should I keep it completely open?`);
-  };
-
-  const toggleCuisine = (c: string) => {
-    setProfile(p => {
-      const isSelected = p.cuisine.includes(c);
-      const updated = isSelected ? p.cuisine.filter(x => x !== c) : [...p.cuisine, c];
-      return { ...p, cuisine: updated };
-    });
-  };
-
-  const submitCuisine = () => {
-    nextStep('spice_budget', "Nice picks. Let's talk specifics: how much heat can you handle, and what's the wallet looking like?");
+    nextStep('spice_budget', "Almost there. Two quick ones: how spicy and what's the budget looking like?");
   };
 
   const submitDetails = async () => {
@@ -646,10 +634,101 @@ export default function MrFryChat() {
             </div>
           )}
 
+          {phase === 'craving' && (
+            <div style={{ animation:'slideUpFade 0.4s ease' }}>
+              <BackButton show />
+              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'6px', color:'#fff' }}>Step 2: What are you craving?</h3>
+              <p style={{ fontSize:'.82rem', color:'rgba(255,255,255,.45)', marginBottom:'18px' }}>Type anything — a dish, cuisine, or feeling. Or let Mr. Fry guide you.</p>
+
+              {/* Manual text input — primary option */}
+              {cravingMode === 'text' && (
+                <>
+                  <input
+                    autoFocus
+                    id="craving-input"
+                    type="text"
+                    value={cravingInput}
+                    onChange={e => setCravingInput(e.target.value)}
+                    placeholder="e.g. biryani, crispy chicken, thai curry..."
+                    onKeyDown={e => e.key === 'Enter' && handleCravingSubmit(cravingInput)}
+                    style={{ width:'100%', padding:'14px 16px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.12)', borderRadius:'12px', color:'#fff', fontSize:'1rem', fontFamily:'Outfit', outline:'none', marginBottom:'12px' }}
+                    onFocus={e => e.target.style.borderColor='#FF6B00'} onBlur={e => e.target.style.borderColor='rgba(255,255,255,.12)'}
+                  />
+                  <button
+                    onClick={() => handleCravingSubmit(cravingInput)}
+                    disabled={!cravingInput.trim()}
+                    style={{ width:'100%', padding:'14px', background: cravingInput.trim() ? 'linear-gradient(135deg, #FF6B00, #FF2020)' : 'rgba(255,255,255,.05)', border:'none', borderRadius:'12px', color: cravingInput.trim() ? '#fff' : 'rgba(255,255,255,.3)', fontWeight:700, fontSize:'1rem', cursor: cravingInput.trim() ? 'pointer' : 'not-allowed', marginBottom:'16px' }}
+                  >Find My Meal →</button>
+
+                  <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'14px' }}>
+                    <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,.08)' }} />
+                    <span style={{ fontSize:'.75rem', color:'rgba(255,255,255,.3)', fontWeight:600 }}>not sure?</span>
+                    <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,.08)' }} />
+                  </div>
+                  <button
+                    onClick={() => { setCravingMode('guided'); setSelectedMainCat(null); setSubSelections([]); }}
+                    style={{ width:'100%', padding:'13px', background:'rgba(255,255,255,.04)', border:'1px solid rgba(255,255,255,.12)', borderRadius:'12px', color:'rgba(255,255,255,.7)', fontWeight:600, fontSize:'.92rem', cursor:'pointer', fontFamily:'Outfit', transition:'all .2s' }}
+                    onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.3)'; e.currentTarget.style.color='#fff'; }}
+                    onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.12)'; e.currentTarget.style.color='rgba(255,255,255,.7)'; }}
+                  >🔍 Help me choose</button>
+                </>
+              )}
+
+              {/* Guided mode — main category grid */}
+              {cravingMode === 'guided' && !selectedMainCat && (
+                <>
+                  <button onClick={() => setCravingMode('text')} style={{ background:'none', border:'none', color:'rgba(255,255,255,.4)', fontSize:'.8rem', fontWeight:600, cursor:'pointer', marginBottom:'14px', fontFamily:'Outfit', padding:0 }}>← Type instead</button>
+                  <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:'10px' }}>
+                    {MAIN_CATEGORIES.map(cat => (
+                      <button key={cat.id} onClick={() => { setSelectedMainCat(cat.id); setSubSelections([]); }}
+                        style={{ padding:'14px 12px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'14px', color:'#fff', fontWeight:600, fontSize:'.9rem', cursor:'pointer', textAlign:'left', display:'flex', alignItems:'center', gap:'8px', transition:'all .15s', fontFamily:'Outfit' }}
+                        onMouseEnter={e => { e.currentTarget.style.borderColor='rgba(255,107,0,.5)'; e.currentTarget.style.background='rgba(255,107,0,.06)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.borderColor='rgba(255,255,255,.1)'; e.currentTarget.style.background='rgba(255,255,255,.03)'; }}
+                      >
+                        <span style={{ fontSize:'1.3rem' }}>{cat.emoji}</span>{cat.label}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+
+              {/* Guided mode — sub-category chips */}
+              {cravingMode === 'guided' && selectedMainCat && (() => {
+                const cat = MAIN_CATEGORIES.find(c => c.id === selectedMainCat)!;
+                return (
+                  <>
+                    <button onClick={() => setSelectedMainCat(null)} style={{ background:'none', border:'none', color:'rgba(255,255,255,.4)', fontSize:'.8rem', fontWeight:600, cursor:'pointer', marginBottom:'12px', fontFamily:'Outfit', padding:0 }}>← {cat.emoji} {cat.label}</button>
+                    <p style={{ fontSize:'.82rem', color:'rgba(255,255,255,.4)', marginBottom:'14px' }}>Pick one or more, or tap Continue to keep it open.</p>
+                    <div style={{ display:'flex', flexWrap:'wrap', gap:'9px', marginBottom:'20px' }}>
+                      {cat.subs.map(sub => {
+                        const active = subSelections.includes(sub);
+                        return (
+                          <button key={sub} onClick={() => setSubSelections(prev => active ? prev.filter(s => s !== sub) : [...prev, sub])}
+                            style={{ padding:'9px 16px', background: active ? 'rgba(255,107,0,.15)' : 'rgba(255,255,255,.03)', border:`1px solid ${active ? 'rgba(255,107,0,.5)' : 'rgba(255,255,255,.1)'}`, borderRadius:'30px', color: active ? '#FF6B00' : 'rgba(255,255,255,.65)', fontWeight:600, fontSize:'.88rem', cursor:'pointer', transition:'all .15s', fontFamily:'Outfit' }}>
+                            {active ? '✓ ' : ''}{sub}
+                          </button>
+                        );
+                      })}
+                    </div>
+                    <button
+                      onClick={() => {
+                        const craving = subSelections.length > 0
+                          ? `${cat.label}: ${subSelections.join(', ')}`
+                          : cat.label;
+                        handleCravingSubmit(craving);
+                      }}
+                      style={{ width:'100%', padding:'14px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer' }}
+                    >Continue →</button>
+                  </>
+                );
+              })()}
+            </div>
+          )}
+
           {phase === 'vibe' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
               <BackButton show />
-              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 2: The Vibe</h3>
+              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 3: The Vibe</h3>
               <div style={{ display:'grid', gap:'12px' }}>
                 {VIBES.map(v => {
                   const isSelected = profile.vibe === v.id;
@@ -668,46 +747,6 @@ export default function MrFryChat() {
                   );
                 })}
               </div>
-            </div>
-          )}
-
-          {phase === 'food_category' && (
-            <div style={{ animation:'slideUpFade 0.4s ease' }}>
-              <BackButton show />
-              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 3: Food Format</h3>
-              <div style={{ display:'grid', gap:'12px', marginBottom:'24px' }}>
-                {FOOD_CATEGORIES.map(cat => {
-                  const isSelected = profile.category === cat.id;
-                  return (
-                    <button key={cat.id} onClick={() => selectCategory(cat.id)}
-                      style={{ padding:'18px 20px', background: isSelected ? 'rgba(0,212,255,.08)' : 'rgba(255,255,255,.03)', border: `1px solid ${isSelected ? '#00D4FF' : 'rgba(255,255,255,.1)'}`, borderRadius:'16px', color: isSelected ? '#00D4FF' : '#fff', fontWeight:700, fontSize:'1.05rem', cursor:'pointer', textAlign:'left', transition:'all .2s' }}
-                      onMouseEnter={e=>(e.currentTarget.style.borderColor='#00D4FF')} onMouseLeave={e=>(e.currentTarget.style.borderColor = isSelected ? '#00D4FF' : 'rgba(255,255,255,.1)')}>
-                      {isSelected ? '✓ ' : ''}{cat.label}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {phase === 'food_specifics' && (
-            <div style={{ animation:'slideUpFade 0.4s ease' }}>
-              <BackButton show />
-              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'8px', color:'#fff' }}>Step 3.5: Specific Cravings</h3>
-              <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.5)', marginBottom:'20px' }}>Select any that catch your eye, or skip to keep it completely open.</p>
-              
-              <div style={{ display:'flex', flexWrap:'wrap', gap:'10px', marginBottom:'32px' }}>
-                {FOOD_CATEGORIES.find(c => c.id === profile.category)?.options.map(c => {
-                  const active = profile.cuisine.includes(c);
-                  return (
-                    <button key={c} onClick={() => toggleCuisine(c)}
-                      style={{ padding:'10px 18px', background: active ? 'rgba(0,212,255,.15)' : 'rgba(255,255,255,.03)', border: `1px solid ${active ? '#00D4FF' : 'rgba(255,255,255,.1)'}`, borderRadius:'30px', color: active ? '#00D4FF' : 'rgba(255,255,255,.6)', fontWeight:600, fontSize:'.9rem', cursor:'pointer', transition:'all .2s' }}>
-                      {active ? '✓ ' : ''}{c}
-                    </button>
-                  );
-                })}
-              </div>
-              <button onClick={submitCuisine} style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer' }}>Continue →</button>
             </div>
           )}
 
@@ -864,7 +903,7 @@ export default function MrFryChat() {
               <button disabled={!textRefinement.trim()} onClick={()=>addRefinement(textRefinement)} style={{ padding:'0 16px', background: textRefinement.trim() ? '#FF6B00' : 'rgba(255,255,255,.05)', border:'none', borderRadius:'10px', color:textRefinement.trim()?'#000':'rgba(255,255,255,.3)', fontWeight:700 }}>➔</button>
             </div>
 
-            <button onClick={()=>{setProfile({ location:'', vibe:'', category:'', cuisine:[], spice:5, budget:1, refinements:[] }); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
+            <button onClick={()=>{setProfile({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] }); setCravingInput(''); setCravingMode('text'); setSelectedMainCat(null); setSubSelections([]); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
           </div>
         )}
 

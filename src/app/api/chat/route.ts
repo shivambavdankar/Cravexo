@@ -14,13 +14,12 @@ function cleanJson(text: string) {
 }
 
 interface DiscoveryProfile {
-  location: string;
-  vibe:     string;
-  category: string;
-  cuisine:  string[];
-  spice:    number;
-  budget:   number;
-  email?:   string;
+  location:    string;
+  craving:     string;
+  vibe:        string;
+  spice:       number;
+  budget:      number;
+  email?:      string;
   refinements: string[];
 }
 
@@ -104,9 +103,8 @@ You are warm, playful, polished, concise, food-obsessed, and never robotic. You 
 
 ### The User Profile contains:
 - Location (Crucial. Find real places near here)
+- Craving (Can be a dish, a broad type of cuisine, or a specific preference)
 - Vibe (e.g., comfort, healthy, party, late)
-- Broad Category (e.g., comfort, street, quick, bold)
-- Specific Cravings selected (if empty, they want a surprise within the category)
 - Spice Level (0 = none, 10 = burn my face)
 - Target Budget (1 = $, 2 = $$, 3 = $$$)
 - Refinements (An array of tweaks the user requested AFTER seeing an initial result, like "make it cheaper" or "Make it Veg 🌱")
@@ -153,7 +151,7 @@ export async function POST(req: NextRequest) {
       });
 
       let dietaryRule = '';
-      const allText = [...profile.cuisine, ...profile.refinements].join(' ').toLowerCase();
+      const allText = [profile.craving, ...profile.refinements].join(' ').toLowerCase();
       if (allText.includes('veg') || allText.includes('plant') || allText.includes('herbivore')) {
         dietaryRule = `\nCRITICAL DIETARY RESTRICTION: The user requested a vegetarian option. EVERY SINGLE recommendation (Primary, Backup, and Mystery) MUST be 100% strictly vegetarian. Absolutely zero meat, chicken, beef, pork, or seafood. NO EXCEPTIONS. If you offer a place known for meat, you MUST explicitly recommend their flagship vegetarian dish.`;
       }
@@ -161,9 +159,8 @@ export async function POST(req: NextRequest) {
       const promptData = `
         User Discovery Profile:
         Location: ${profile.location}
+        Craving: ${profile.craving || 'Surprise me'}
         Vibe: ${profile.vibe}
-        Broad Category: ${profile.category}
-        Specific Cravings: ${profile.cuisine.length ? profile.cuisine.join(', ') : 'Any within category'}
         Spice Tolerance (1-10): ${profile.spice}
         Budget (1=$, 2=$$, 3=$$$): ${profile.budget}
         Refinement requests (if any): ${profile.refinements.length ? profile.refinements.join(', ') : 'None yet'}
