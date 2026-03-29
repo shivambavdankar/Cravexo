@@ -822,7 +822,7 @@ export default function MrFryChat() {
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'16px' }}>
                   <span style={{ fontSize:'.7rem', fontWeight:800, letterSpacing:'.1em', textTransform:'uppercase', color:'#FFD700', background:'rgba(255,215,0,.1)', border:'1px solid rgba(255,215,0,.3)', padding:'4px 12px', borderRadius:'20px' }}>🎯 Primary Target</span>
                   <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
-                    <span style={{ fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'4px 10px', borderRadius:'8px' }}>~ {recommendation.primary.price}</span>
+                    <span style={{ fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'4px 10px', borderRadius:'8px' }}>{recommendation.primary.price}</span>
                     <span style={{ fontSize:'.6rem', color:'rgba(255,255,255,.3)', fontWeight:600, marginTop:'4px', letterSpacing:'.05em', textTransform:'uppercase' }}>Estimated</span>
                   </div>
                 </div>
@@ -853,7 +853,7 @@ export default function MrFryChat() {
                     {recommendation.backup.price && (
                       <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
                         <span style={{ fontSize:'.6rem', color:'rgba(255,255,255,.3)', fontWeight:600, textTransform:'uppercase' }}>Est.</span>
-                        <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'2px 8px', borderRadius:'6px' }}>~ {recommendation.backup.price}</span>
+                        <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(255,255,255,.1)', padding:'2px 8px', borderRadius:'6px' }}>{recommendation.backup.price}</span>
                       </div>
                     )}
                   </div>
@@ -869,7 +869,7 @@ export default function MrFryChat() {
                       {typeof recommendation.mystery !== 'string' && recommendation.mystery.price && (
                         <div style={{ display:'flex', alignItems:'center', gap:'6px' }}>
                           <span style={{ fontSize:'.6rem', color:'#C896FF', opacity:0.6, fontWeight:600, textTransform:'uppercase' }}>Est.</span>
-                          <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(155,89,182,.2)', padding:'2px 8px', borderRadius:'6px' }}>~ {recommendation.mystery.price}</span>
+                          <span style={{ fontSize:'.75rem', fontWeight:800, color:'#fff', background:'rgba(155,89,182,.2)', padding:'2px 8px', borderRadius:'6px' }}>{recommendation.mystery.price}</span>
                         </div>
                       )}
                     </div>
