@@ -123,6 +123,11 @@ export default function MrFryChat() {
   const [loggedRecommendation, setLoggedRecommendation] = useState<string | null>(null);
   const [isReturning, setIsReturning] = useState(false);
 
+  // Geolocation state
+  type GeoState = 'idle' | 'loading' | 'success' | 'denied' | 'error' | 'unsupported';
+  const [geoState, setGeoState] = useState<GeoState>('idle');
+  const [detectedLocation, setDetectedLocation] = useState('');
+
   // Auto-scroll: always scroll to top on every phase transition
   const contentRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
@@ -143,14 +148,72 @@ export default function MrFryChat() {
     } catch {}
   }, []);
 
+  // ─── Geolocation Helper ──────────────────────────────────────────────────────
+  const detectLocation = async () => {
+    if (!navigator.geolocation) {
+      setGeoState('unsupported');
+      return;
+    }
+    setGeoState('loading');
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const { latitude, longitude } = pos.coords;
+          const res = await fetch(
+            `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`
+          );
+          const geo = await res.json();
+          // Build a readable string: "Locality, City" or "City" as fallback
+          const locality = geo.locality || geo.localityInfo?.administrative?.find((a: {order:number; name:string}) => a.order === 8)?.name || '';
+          const city = geo.city || geo.principalSubdivision || '';
+          const readable = locality && city && locality !== city
+            ? `${locality}, ${city}`
+            : city || locality || `${latitude.toFixed(3)}, ${longitude.toFixed(3)}`;
+          setDetectedLocation(readable);
+          setGeoState('success');
+          // Cache permission state for future auto-detect
+          localStorage.setItem('mrfry_geo_permission', 'granted');
+        } catch {
+          // Reverse geocode failed — still mark as success with raw coords fallback
+          setGeoState('error');
+        }
+      },
+      (err) => {
+        if (err.code === err.PERMISSION_DENIED) {
+          setGeoState('denied');
+          localStorage.setItem('mrfry_geo_permission', 'denied');
+        } else {
+          setGeoState('error');
+        }
+      },
+      { timeout: 10000, maximumAge: 60000 }
+    );
+  };
+
   const openFlow = async () => {
     setIsOpen(true);
     setIsGated(false);
     setLoggedRecommendation(null);
+    setGeoState('idle');
+    setDetectedLocation('');
     setPhase('location');
 
+    // Auto-attempt geolocation if user previously granted permission
+    try {
+      const cached = localStorage.getItem('mrfry_geo_permission');
+      if (cached === 'granted' && navigator.geolocation) {
+        // Also verify via Permissions API if available
+        if (navigator.permissions) {
+          const perm = await navigator.permissions.query({ name: 'geolocation' });
+          if (perm.state === 'granted') detectLocation();
+        } else {
+          detectLocation();
+        }
+      }
+    } catch { /* best-effort auto-detect */ }
+
     if (!user) {
-      setMrfryText(isReturning ? "Welcome back! 🍟 Ready for round two? Tell me where we are hunting today." : "Yo! 🍔 I'm Mr. Fry. Give me a few details and I'll find your exact craving. Where are you right now?");
+      setMrfryText(isReturning ? "Welcome back! 🍟 Ready for round two? Where are we hunting today?" : "Yo! 🍔 I'm Mr. Fry. Let me find your exact craving. Can I use your location to get started?");
       return;
     }
 
@@ -180,8 +243,8 @@ export default function MrFryChat() {
       // Fail gracefully and quietly, never breaking the user experience
     }
 
-    const defaultGreeting = `Hey ${user.name.split(' ')[0]}! 🍔 Ready to find your next craving? Where are you right now?`;
-    setMrfryText(memoryGreeting || (isReturning ? "Welcome back! 🍟 Ready for round two? Tell me where we are hunting today." : defaultGreeting));
+    const defaultGreeting = `Hey ${user.name.split(' ')[0]}! 🍔 Ready to find your next craving? Want me to use your current location, or tell me where you are?`;
+    setMrfryText(memoryGreeting || (isReturning ? "Welcome back! 🍟 Ready for round two? Tell me which location we're exploring today." : defaultGreeting));
   };
 
 
@@ -496,19 +559,90 @@ export default function MrFryChat() {
           
           {phase === 'location' && (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
-              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'16px', color:'#fff' }}>Step 1: City / Area</h3>
-              <input 
-                autoFocus id="loc-input" type="text"
-                defaultValue={profile.location}
-                placeholder="e.g. Bandra, Mumbai · Koramangala, Bangalore · Delhi NCR" 
-                onKeyDown={e => e.key==='Enter' && handleLocationSubmit(e.currentTarget.value)}
-                style={{ width:'100%', padding:'16px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.15)', borderRadius:'12px', color:'#fff', fontSize:'1rem', fontFamily:'Outfit', outline:'none', marginBottom:'12px' }}
-                onFocus={(e)=>e.target.style.borderColor='#FF6B00'} onBlur={(e)=>e.target.style.borderColor='rgba(255,255,255,.15)'}
-              />
-              <button 
-                onClick={() => handleLocationSubmit((document.getElementById('loc-input') as HTMLInputElement).value)}
-                style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer' }}
-              >Set Location →</button>
+              <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'6px', color:'#fff' }}>Step 1: Your Location</h3>
+              <p style={{ fontSize:'.82rem', color:'rgba(255,255,255,.45)', marginBottom:'18px' }}>Let Mr. Fry find spots near you.</p>
+
+              {/* Auto-detect button — hide if denied */}
+              {geoState !== 'denied' && geoState !== 'unsupported' && (
+                <button
+                  onClick={detectLocation}
+                  disabled={geoState === 'loading'}
+                  style={{
+                    width:'100%', padding:'15px', marginBottom:'12px',
+                    background: geoState === 'success' ? 'rgba(0,255,136,.08)' : 'rgba(255,107,0,.1)',
+                    border: `1px solid ${geoState === 'success' ? 'rgba(0,255,136,.35)' : 'rgba(255,107,0,.35)'}`,
+                    borderRadius:'12px', color: geoState === 'success' ? '#00FF88' : '#FF6B00',
+                    fontWeight:700, fontSize:'.95rem', cursor: geoState === 'loading' ? 'default' : 'pointer',
+                    display:'flex', alignItems:'center', justifyContent:'center', gap:'8px',
+                    fontFamily:'Outfit, sans-serif', transition:'all .2s',
+                  }}
+                >
+                  {geoState === 'loading' && (
+                    <span style={{ width:'14px', height:'14px', borderRadius:'50%', border:'2px solid rgba(255,107,0,.3)', borderTopColor:'#FF6B00', display:'inline-block', animation:'spin-slow .7s linear infinite' }} />
+                  )}
+                  {geoState === 'loading' ? 'Detecting your location...' :
+                   geoState === 'success' ? '📍 Location detected — tap to refresh' :
+                   '📍 Use My Current Location'}
+                </button>
+              )}
+
+              {/* Detected location — editable confirmation field */}
+              {geoState === 'success' && detectedLocation && (
+                <div style={{ marginBottom:'12px' }}>
+                  <div style={{ fontSize:'.78rem', color:'rgba(0,255,136,.7)', fontWeight:600, marginBottom:'6px', letterSpacing:'.03em' }}>✓ Detected location</div>
+                  <input
+                    id="loc-input"
+                    type="text"
+                    defaultValue={detectedLocation}
+                    placeholder="Confirm or edit your location"
+                    onKeyDown={e => e.key==='Enter' && handleLocationSubmit(e.currentTarget.value)}
+                    style={{ width:'100%', padding:'14px 16px', background:'rgba(0,255,136,.04)', border:'1px solid rgba(0,255,136,.25)', borderRadius:'12px', color:'#fff', fontSize:'1rem', fontFamily:'Outfit', outline:'none' }}
+                    onFocus={e => e.target.style.borderColor='#00FF88'} onBlur={e => e.target.style.borderColor='rgba(0,255,136,.25)'}
+                  />
+                </div>
+              )}
+
+              {/* Divider — only when auto-detect is showing */}
+              {geoState !== 'denied' && geoState !== 'unsupported' && geoState !== 'success' && (
+                <div style={{ display:'flex', alignItems:'center', gap:'10px', marginBottom:'12px' }}>
+                  <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,.08)' }} />
+                  <span style={{ fontSize:'.75rem', color:'rgba(255,255,255,.3)', fontWeight:600 }}>or</span>
+                  <div style={{ flex:1, height:'1px', background:'rgba(255,255,255,.08)' }} />
+                </div>
+              )}
+
+              {/* Friendly denial message */}
+              {(geoState === 'denied' || geoState === 'error') && (
+                <p style={{ fontSize:'.82rem', color:'rgba(255,255,255,.4)', marginBottom:'12px' }}>
+                  {geoState === 'denied' ? 'No worries — location access was blocked. Enter your city or area below.' : 'Location detection had an issue. Enter your city or area below.'}
+                </p>
+              )}
+
+              {/* Manual entry — always visible when not in success state */}
+              {geoState !== 'success' && (
+                <input
+                  id="loc-input"
+                  type="text"
+                  autoFocus={geoState === 'denied' || geoState === 'error' || geoState === 'unsupported'}
+                  defaultValue={profile.location}
+                  placeholder="e.g. Bandra, Mumbai · Koramangala, Bangalore"
+                  onKeyDown={e => e.key==='Enter' && handleLocationSubmit(e.currentTarget.value)}
+                  style={{ width:'100%', padding:'14px 16px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.12)', borderRadius:'12px', color:'#fff', fontSize:'1rem', fontFamily:'Outfit', outline:'none', marginBottom:'12px' }}
+                  onFocus={e => e.target.style.borderColor='#FF6B00'} onBlur={e => e.target.style.borderColor='rgba(255,255,255,.12)'}
+                />
+              )}
+
+              {/* Confirm button */}
+              <button
+                onClick={() => {
+                  const input = document.getElementById('loc-input') as HTMLInputElement;
+                  const val = input?.value.trim() || detectedLocation.trim();
+                  handleLocationSubmit(val);
+                }}
+                style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer', marginTop: geoState === 'success' ? '4px' : '0' }}
+              >
+                {geoState === 'success' ? 'Confirm Location →' : 'Set Location →'}
+              </button>
             </div>
           )}
 
