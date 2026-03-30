@@ -149,6 +149,7 @@ export default function MrFryChat() {
   const [emailInput, setEmailInput] = useState('');
   const [textRefinement, setTextRefinement] = useState('');
   const [recommendation, setRecommendation] = useState<Recommendation | null>(null);
+  const [resolvedImages, setResolvedImages] = useState<Record<string, string | null>>({});
   const [loggedRecommendation, setLoggedRecommendation] = useState<string | null>(null);
   const [isReturning, setIsReturning] = useState(false);
 
@@ -464,6 +465,32 @@ export default function MrFryChat() {
 
         setMrfryText(data.message || (isRefinement ? "Here we go—how about this instead?" : "Boom. The exact match has been located."));
         setPhase('recommendation');
+
+        // --- NEW: Asynchronous Image Resolution ---
+        setResolvedImages({}); // reset on new recommendation
+        const isDessert = !isSpiceRelevant(activeProfile.craving);
+
+        // Primary
+        fetch('/api/resolve-image', {
+          method: 'POST', body: JSON.stringify({ restaurant_name: data.recommendation.primary.chain, city: data.recommendation.primary.city, food_item: data.recommendation.primary.name, craving: activeProfile.craving, is_dessert: isDessert })
+        }).then(res => res.json()).then(im => setResolvedImages(p => ({...p, primary: im.image_url}))).catch(() => setResolvedImages(p => ({...p, primary: 'error'})));
+
+        // Backup
+        if (data.recommendation.backup.name) {
+          fetch('/api/resolve-image', {
+            method: 'POST', body: JSON.stringify({ restaurant_name: data.recommendation.backup.chain, city: data.recommendation.backup.city, food_item: data.recommendation.backup.name, craving: activeProfile.craving, is_dessert: isDessert })
+          }).then(res => res.json()).then(im => setResolvedImages(p => ({...p, backup: im.image_url}))).catch(() => setResolvedImages(p => ({...p, backup: 'error'})));
+        }
+
+        // Mystery
+        let mysteryName = typeof data.recommendation.mystery === 'string' ? null : data.recommendation.mystery?.name;
+        let mysteryChain = typeof data.recommendation.mystery === 'string' ? null : data.recommendation.mystery?.chain;
+        if (mysteryName) {
+           fetch('/api/resolve-image', {
+            method: 'POST', body: JSON.stringify({ restaurant_name: mysteryChain, city: data.recommendation.primary.city, food_item: mysteryName, craving: activeProfile.craving, is_dessert: isDessert })
+          }).then(res => res.json()).then(im => setResolvedImages(p => ({...p, mystery: im.image_url}))).catch(() => setResolvedImages(p => ({...p, mystery: 'error'})));
+        }
+
       } else {
         throw new Error('No recommendation returned');
       }
@@ -847,6 +874,21 @@ export default function MrFryChat() {
               <div style={{ background:'linear-gradient(135deg, rgba(12,14,26,1) 0%, rgba(30,15,5,1) 100%)', border:'1px solid rgba(255,107,0,.4)', borderRadius:'20px', padding:'24px', boxShadow:'0 20px 60px rgba(255,107,0,.15)', position:'relative', overflow:'hidden' }}>
                 <div style={{ position:'absolute', top:'-50%', right:'-50%', width:'100%', height:'100%', background:'radial-gradient(circle, rgba(255,107,0,0.1), transparent)', pointerEvents:'none' }} />
                 
+                {/* Primary Image Resolver Visuals */}
+                <div style={{ width: '100%', height: '180px', borderRadius: '14px', marginBottom: '20px', overflow: 'hidden', background: 'rgba(255,255,255,0.03)', position: 'relative' }}>
+                  {!resolvedImages.primary && resolvedImages.primary !== 'error' ? (
+                    <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg, rgba(255,255,255,0.02) 25%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.02) 75%)', backgroundSize: '400% 100%', animation: 'shimmer 1.5s infinite linear', display:'flex', alignItems:'center', justifyContent:'center' }}>
+                      <span style={{color:'rgba(255,255,255,0.1)', fontSize:'2rem'}}>🍽️</span>
+                    </div>
+                  ) : resolvedImages.primary === 'error' ? (
+                    <div style={{ width: '100%', height: '100%', display:'flex', alignItems:'center', justifyContent:'center', border:'1px dashed rgba(255,255,255,0.1)', borderRadius:'14px' }}>
+                      <span style={{ fontSize:'2rem', opacity:0.4 }}>🥘</span>
+                    </div>
+                  ) : (
+                    <img src={resolvedImages.primary} alt={recommendation.primary.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0, animation: 'fadeIn 0.5s ease forwards' }} onLoad={(e)=>e.currentTarget.style.opacity='1'} />
+                  )}
+                </div>
+
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'16px' }}>
                   <span style={{ fontSize:'.7rem', fontWeight:800, letterSpacing:'.1em', textTransform:'uppercase', color:'#FFD700', background:'rgba(255,215,0,.1)', border:'1px solid rgba(255,215,0,.3)', padding:'4px 12px', borderRadius:'20px' }}>🎯 Primary Target</span>
                   <div style={{ display:'flex', flexDirection:'column', alignItems:'flex-end' }}>
@@ -876,6 +918,18 @@ export default function MrFryChat() {
               {/* Extras Grid */}
               <div style={{ display:'grid', gridTemplateColumns:'1fr', gap:'16px', marginTop:'16px' }}>
                 <div style={{ background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.06)', padding:'16px', borderRadius:'16px' }}>
+                  
+                  {/* Backup Image Resolver Visuals */}
+                  <div style={{ width: '100%', height: '120px', borderRadius: '12px', marginBottom: '16px', overflow: 'hidden', background: 'rgba(255,255,255,0.02)', position: 'relative' }}>
+                    {!resolvedImages.backup && resolvedImages.backup !== 'error' ? (
+                      <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg, rgba(255,255,255,0.01) 25%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0.01) 75%)', backgroundSize: '400% 100%', animation: 'shimmer 1.5s infinite linear' }} />
+                    ) : resolvedImages.backup === 'error' ? (
+                      <div style={{ width: '100%', height: '100%', display:'flex', alignItems:'center', justifyContent:'center', border:'1px dashed rgba(255,255,255,0.05)', borderRadius:'12px' }}><span style={{ fontSize:'1.5rem', opacity:0.2 }}>🍔</span></div>
+                    ) : (
+                      <img src={resolvedImages.backup} alt={recommendation.backup.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0, animation: 'fadeIn 0.5s ease forwards' }} onLoad={(e)=>e.currentTarget.style.opacity='1'} />
+                    )}
+                  </div>
+
                   <div style={{ display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'6px' }}>
                     <span style={{ fontSize:'.65rem', fontWeight:700, color:'rgba(255,255,255,.4)', textTransform:'uppercase' }}>🥈 Solid Backup</span>
                     {recommendation.backup.price && (
@@ -906,6 +960,17 @@ export default function MrFryChat() {
                         <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.7)' }}>{recommendation.mystery}</p>
                       ) : (
                         <>
+                          {/* Mystery Image Resolver Visuals */}
+                          <div style={{ width: '100%', height: '120px', borderRadius: '12px', marginBottom: '16px', top: '10px', overflow: 'hidden', background: 'rgba(155,89,182,0.05)', position: 'relative' }}>
+                            {!resolvedImages.mystery && resolvedImages.mystery !== 'error' ? (
+                              <div style={{ width: '100%', height: '100%', background: 'linear-gradient(90deg, rgba(155,89,182,0.02) 25%, rgba(155,89,182,0.1) 50%, rgba(155,89,182,0.02) 75%)', backgroundSize: '400% 100%', animation: 'shimmer 1.5s infinite linear' }} />
+                            ) : resolvedImages.mystery === 'error' ? (
+                              <div style={{ width: '100%', height: '100%', display:'flex', alignItems:'center', justifyContent:'center', border:'1px dashed rgba(155,89,182,0.15)', borderRadius:'12px' }}><span style={{ fontSize:'1.5rem', opacity:0.3 }}>🎲</span></div>
+                            ) : (
+                              <img src={resolvedImages.mystery} alt={recommendation.mystery.name} style={{ width: '100%', height: '100%', objectFit: 'cover', opacity: 0, animation: 'fadeIn 0.5s ease forwards' }} onLoad={(e)=>e.currentTarget.style.opacity='1'} />
+                            )}
+                          </div>
+
                           <p style={{ fontWeight:700, fontSize:'1rem', color:'#fff', marginBottom:'4px' }}>
                             {recommendation.mystery.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem', fontWeight:500 }}>at {recommendation.mystery.chain}</span>
                           </p>
