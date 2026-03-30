@@ -51,7 +51,7 @@ GEMINI_API_KEY=your_gemini_api_key
 ```bash
 npm run dev
 ```
-Open [http://localhost:3000](http://localhost:3000) to start discovering food!
+Open [http://www.cravexo.com](http://www.cravexo.com) to start discovering food!
 
 ## 📄 License
 Internal / Private Project (C) 2026 Cravexo Team.
