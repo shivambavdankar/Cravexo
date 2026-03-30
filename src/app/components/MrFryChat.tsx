@@ -68,6 +68,25 @@ const MAIN_CATEGORIES: { id: string; emoji: string; label: string; subs: string[
 
 const BUDGET_LABELS = ['$', '$$', '$$$'];
 
+// Helper to determine if spice level makes sense for the user's craving
+const isSpiceRelevant = (craving: string): boolean => {
+  if (!craving) return true; // Default to showing if empty/unknown
+  const c = craving.toLowerCase();
+  
+  // Specifically map main category IDs that are clearly non-spicy
+  if (c === 'healthy' || c === 'desserts' || c === 'drinks') return false;
+
+  // Keyword check for manual input and sub-categories
+  const sweetKeywords = [
+    'dessert', 'sweet', 'ice cream', 'cake', 'pastry', 'pastries', 
+    'cookie', 'bake', 'chocolate', 'brownie', 'waffle', 
+    'pancake', 'crepe', 'donut', 'doughnut', 'shake', 'smoothie', 
+    'beverage', 'drink', 'boba', 'tea', 'coffee', 'mithai', 'churro',
+    'salad', 'fruit'
+  ];
+  return !sweetKeywords.some(kw => c.includes(kw));
+};
+
 // ─── Delivery Buttons Component ────────────────────────────────────────────────
 const PLATFORMS = [
   { key: 'zomato_url',     label: 'Order from Zomato',    icon: '🍕', color: '#E23744' },
@@ -330,8 +349,12 @@ export default function MrFryChat() {
   };
 
   const selectVibe = (v: string) => {
-    setProfile(p => ({ ...p, vibe: v }));
-    nextStep('spice_budget', "Almost there. Two quick ones: how spicy and what's the budget looking like?");
+    const showSpice = isSpiceRelevant(profile.craving);
+    setProfile(p => ({ ...p, vibe: v, spice: showSpice ? p.spice : 0 }));
+    const nextMsg = showSpice 
+      ? "Almost there. Two quick ones: how spicy and what's the budget looking like?"
+      : "Almost there. Just one last thing: what's the budget looking like?";
+    nextStep('spice_budget', nextMsg);
   };
 
   const submitDetails = async () => {
@@ -750,22 +773,26 @@ export default function MrFryChat() {
             </div>
           )}
 
-          {phase === 'spice_budget' && (
+          {phase === 'spice_budget' && (() => {
+            const showSpice = isSpiceRelevant(profile.craving);
+            return (
             <div style={{ animation:'slideUpFade 0.4s ease' }}>
               <BackButton show />
               <h3 style={{ fontSize:'1.1rem', fontWeight:800, marginBottom:'24px', color:'#fff' }}>Step 4: The Details</h3>
               
               {/* Spice */}
-              <div style={{ marginBottom:'40px', background:'rgba(255,32,32,.04)', border:'1px solid rgba(255,32,32,.15)', padding:'24px', borderRadius:'16px' }}>
-                <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px' }}>
-                  <span style={{ fontWeight:700, color:'#FF6B00' }}>Spice Level</span>
-                  <span style={{ color:'rgba(255,255,255,.5)', fontSize:'.9rem' }}>{profile.spice}/10</span>
+              {showSpice && (
+                <div style={{ marginBottom:'40px', background:'rgba(255,32,32,.04)', border:'1px solid rgba(255,32,32,.15)', padding:'24px', borderRadius:'16px' }}>
+                  <div style={{ display:'flex', justifyContent:'space-between', marginBottom:'16px' }}>
+                    <span style={{ fontWeight:700, color:'#FF6B00' }}>Spice Level</span>
+                    <span style={{ color:'rgba(255,255,255,.5)', fontSize:'.9rem' }}>{profile.spice}/10</span>
+                  </div>
+                  <input type="range" min="0" max="10" value={profile.spice} onChange={e => setProfile({...profile, spice: parseInt(e.target.value)})} className="spice-slider" />
+                  <div style={{ display:'flex', justifyContent:'space-between', marginTop:'8px', fontSize:'.75rem', color:'rgba(255,255,255,.4)', textTransform:'uppercase', fontWeight:600 }}>
+                    <span>Zero Heat</span><span>Burn My Face</span>
+                  </div>
                 </div>
-                <input type="range" min="0" max="10" value={profile.spice} onChange={e => setProfile({...profile, spice: parseInt(e.target.value)})} className="spice-slider" />
-                <div style={{ display:'flex', justifyContent:'space-between', marginTop:'8px', fontSize:'.75rem', color:'rgba(255,255,255,.4)', textTransform:'uppercase', fontWeight:600 }}>
-                  <span>Zero Heat</span><span>Burn My Face</span>
-                </div>
-              </div>
+              )}
 
               {/* Budget */}
               <div style={{ marginBottom:'40px' }}>
@@ -785,7 +812,8 @@ export default function MrFryChat() {
 
               <button onClick={submitDetails} style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer', boxShadow:'0 8px 30px rgba(255,107,0,0.3)' }}>Generate Recommendation ⚡</button>
             </div>
-          )}
+          );
+          })()}
 
           {phase === 'email' && (
             <div style={{ animation:'popIn 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
