@@ -5,6 +5,8 @@ import { useAccount } from '../context/AccountContext';
 import { createClient } from '@/lib/supabase/client';
 import SignupModal from './SignupModal';
 import SubscriptionModal from './SubscriptionModal';
+import { useCart } from '../context/CartContext';
+import CartDrawer from './CartDrawer';
 
 const navLinks = [
   { label: 'Home', href: '#home' },
@@ -16,6 +18,8 @@ const navLinks = [
 
 export default function Navbar() {
   const { user, logout } = useAccount();
+  const { cart, setIsOpen: setCartOpen } = useCart();
+  const cartCount = cart.reduce((acc, item) => acc + item.quantity, 0);
   const [scrolled, setScrolled] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [signupOpen, setSignupOpen] = useState(false);
@@ -117,6 +121,23 @@ export default function Navbar() {
               {link.label}
             </a>
           ))}
+
+          {/* Cart Icon Desktop */}
+          {user && (
+            <button
+              onClick={() => setCartOpen(true)}
+              style={{ position: 'relative', background: 'transparent', border: 'none', cursor: 'pointer', fontSize: '1.4rem', display: 'flex', alignItems: 'center', transition: 'transform 0.2s' }}
+              onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.1)'}
+              onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+            >
+              🛒
+              {cartCount > 0 && (
+                <span style={{ position: 'absolute', top: '-6px', right: '-10px', background: '#FF2020', color: '#fff', fontSize: '.7rem', fontWeight: 800, width: '20px', height: '20px', display: 'flex', alignItems: 'center', justifyContent: 'center', borderRadius: '50%', boxShadow: '0 2px 8px rgba(255,32,32,.5)' }}>
+                  {cartCount}
+                </span>
+              )}
+            </button>
+          )}
 
           {/* Talk to Mr. Fry */}
           <button
@@ -249,6 +270,16 @@ export default function Navbar() {
             >
               Talk to Mr. Fry
             </button>
+
+            {user && (
+              <button
+                onClick={() => { setMenuOpen(false); setCartOpen(true); }}
+                style={{ textAlign: 'center', background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', borderRadius: '10px', color: '#fff', cursor: 'pointer', fontFamily: 'Outfit, sans-serif', width: '100%', padding: '14px', fontWeight: 700, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '8px' }}
+              >
+                🛒 Open Cart {cartCount > 0 && <span style={{ background: '#FF2020', borderRadius: '50%', padding: '2px 8px', fontSize: '.8rem' }}>{cartCount}</span>}
+              </button>
+            )}
+
             {!user ? (
               <button onClick={() => { setMenuOpen(false); setSignupOpen(true); }}
                 style={{ padding: '14px', background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.15)', borderRadius: '10px', color: '#fff', fontWeight: 700, cursor: 'pointer', fontFamily: 'Outfit, sans-serif' }}>
@@ -279,6 +310,9 @@ export default function Navbar() {
 
       {/* Signup Modal */}
       <SignupModal isOpen={signupOpen} onClose={() => setSignupOpen(false)} />
+
+      {/* Cart Drawer */}
+      <CartDrawer />
 
       {/* Subscription Modal */}
       <SubscriptionModal isOpen={subscriptionOpen} onClose={() => setSubscriptionOpen(false)} />

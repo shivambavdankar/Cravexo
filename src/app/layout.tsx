@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AccountProvider } from "./context/AccountContext";
+import { CartProvider } from "./context/CartContext";
 
 export const metadata: Metadata = {
   title: "Cravexo — The Future of Food Discovery",
@@ -22,7 +23,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AccountProvider>
-          {children}
+          <CartProvider>
+            {children}
+          </CartProvider>
         </AccountProvider>
       </body>
     </html>
