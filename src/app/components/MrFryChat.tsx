@@ -828,7 +828,7 @@ export default function MrFryChat() {
 
                       if (!isExcluded && words.length > 0 && words.length <= 2 && raw.length > 2 && raw.length <= 16) {
                         const formatted = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
-                        ctaText = `Pick My ${formatted} ⚡`;
+                        ctaText = `Find My ${formatted} ⚡`;
                       }
                     }
                     return ctaText;
