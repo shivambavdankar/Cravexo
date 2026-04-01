@@ -36,6 +36,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  const showToast = (msg: string) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(null), 4000);
+  };
 
   // Fetch cart when user logs in
   useEffect(() => {
@@ -64,7 +70,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     } else {
       // Enforce max 10 distinct items
       if (cart.length >= 10) {
-        alert("Your cart is full. Remove an item to add a new one.");
+        showToast("Your cart is full. Remove an item to add a new one.");
         return;
       }
       newCart.push({ ...item, quantity: 1, id: 'temp-' + Date.now() });
@@ -116,6 +122,14 @@ export function CartProvider({ children }: { children: ReactNode }) {
   return (
     <CartContext.Provider value={{ cart, isOpen, setIsOpen, addToCart, updateQuantity, isLoading }}>
       {children}
+      
+      {/* Global Cart Toast */}
+      {toastMessage && (
+        <div style={{ position: 'fixed', bottom: '40px', left: '50%', transform: 'translateX(-50%)', zIndex: 99999, background: 'linear-gradient(135deg, rgba(30,15,5,0.98), rgba(12,14,26,0.98))', border: '1px solid rgba(255,107,0,0.4)', borderRadius: '16px', padding: '14px 24px', boxShadow: '0 10px 40px rgba(255,107,0,0.25)', display: 'flex', alignItems: 'center', gap: '12px', animation: 'slideUpFade 0.3s ease-out', backdropFilter: 'blur(10px)', color: '#fff', width: 'max-content', maxWidth: '90vw' }}>
+          <span style={{ fontSize: '1.2rem', filter: 'drop-shadow(0 0 8px rgba(255,107,0,0.8))' }}>⚠️</span>
+          <p style={{ margin: 0, fontSize: '.95rem', fontWeight: 600, letterSpacing: '.02em' }}>{toastMessage}</p>
+        </div>
+      )}
     </CartContext.Provider>
   );
 }
