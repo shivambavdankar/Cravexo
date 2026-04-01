@@ -949,30 +949,28 @@ export default function MrFryChat() {
                 )}
               </div>
 
+              {/* BOTTOM: REFINEMENT INLINE SECTION */}
+              <div style={{ marginTop:'40px', paddingTop:'32px', borderTop:'1px solid rgba(255,255,255,.1)', animation:'slideUpFade 0.4s ease 0.2s both' }}>
+                <p style={{ fontSize:'.75rem', fontWeight:700, color:'rgba(255,255,255,.4)', textTransform:'uppercase', marginBottom:'12px' }}>Still craving something a little different?</p>
+                
+                <div style={{ display:'flex', gap:'8px', overflowX:'auto', paddingBottom:'12px', scrollbarWidth:'none' }} className="chat-scroll">
+                  {['Make it Veg 🌱', 'More Street-Food Energy 🛵', 'Make it a Combo 🍛', 'Different Area', 'Go Wild'].map(r => (
+                    <button key={r} onClick={()=>addRefinement(r)} style={{ whiteSpace:'nowrap', padding:'8px 14px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'20px', color:'rgba(255,255,255,.7)', fontSize:'.8rem', fontWeight:600, cursor:'pointer' }}>{r}</button>
+                  ))}
+                </div>
+                
+                <div style={{ display:'flex', gap:'8px' }}>
+                  <input type="text" value={textRefinement} onChange={e=>setTextRefinement(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addRefinement(textRefinement)} placeholder="Type specific tweak..." style={{ flex:1, background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'10px', padding:'10px 14px', color:'#fff', fontSize:'.85rem', outline:'none' }} />
+                  <button disabled={!textRefinement.trim()} onClick={()=>addRefinement(textRefinement)} style={{ padding:'0 16px', background: textRefinement.trim() ? '#FF6B00' : 'rgba(255,255,255,.05)', border:'none', borderRadius:'10px', color:textRefinement.trim()?'#000':'rgba(255,255,255,.3)', fontWeight:700 }}>➔</button>
+                </div>
+
+                <button onClick={()=>{setProfile({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] }); setCravingInput(''); setCravingMode('text'); setSelectedMainCat(null); setSubSelections([]); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
+              </div>
+
             </div>
           )}
 
         </div>
-
-        {/* BOTTOM: REFINEMENT & NAVIGATION DOCK */}
-        {(phase === 'recommendation' || phase === 'refinement') && (
-          <div style={{ padding:'20px', background:'rgba(7,8,16,.98)', borderTop:'1px solid rgba(255,255,255,.05)', boxShadow:'0 -10px 40px rgba(0,0,0,.5)', animation:'slideUpFade 0.4s ease 0.2s both' }}>
-            <p style={{ fontSize:'.75rem', fontWeight:700, color:'rgba(255,255,255,.4)', textTransform:'uppercase', marginBottom:'12px' }}>Not quite right? Refine it:</p>
-            
-            <div style={{ display:'flex', gap:'8px', overflowX:'auto', paddingBottom:'12px', scrollbarWidth:'none' }} className="chat-scroll">
-              {['Make it Veg 🌱', 'More Street-Food Energy 🛵', 'Make it a Combo 🍛', 'Different Area', 'Go Wild'].map(r => (
-                <button key={r} onClick={()=>addRefinement(r)} style={{ whiteSpace:'nowrap', padding:'8px 14px', background:'rgba(255,255,255,.03)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'20px', color:'rgba(255,255,255,.7)', fontSize:'.8rem', fontWeight:600, cursor:'pointer' }}>{r}</button>
-              ))}
-            </div>
-            
-            <div style={{ display:'flex', gap:'8px' }}>
-              <input type="text" value={textRefinement} onChange={e=>setTextRefinement(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addRefinement(textRefinement)} placeholder="Type specific tweak..." style={{ flex:1, background:'rgba(255,255,255,.02)', border:'1px solid rgba(255,255,255,.1)', borderRadius:'10px', padding:'10px 14px', color:'#fff', fontSize:'.85rem', outline:'none' }} />
-              <button disabled={!textRefinement.trim()} onClick={()=>addRefinement(textRefinement)} style={{ padding:'0 16px', background: textRefinement.trim() ? '#FF6B00' : 'rgba(255,255,255,.05)', border:'none', borderRadius:'10px', color:textRefinement.trim()?'#000':'rgba(255,255,255,.3)', fontWeight:700 }}>➔</button>
-            </div>
-
-            <button onClick={()=>{setProfile({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] }); setCravingInput(''); setCravingMode('text'); setSelectedMainCat(null); setSubSelections([]); openFlow();}} style={{ width:'100%', marginTop:'16px', padding:'12px', background:'transparent', border:'1px dashed rgba(255,255,255,.15)', borderRadius:'10px', color:'rgba(255,255,255,.5)', fontSize:'.85rem', cursor:'pointer' }}>🔄 Start Over Completely</button>
-          </div>
-        )}
 
       </div>
     </>
