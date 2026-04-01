@@ -89,9 +89,44 @@ const isSpiceRelevant = (craving: string): boolean => {
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function MrFryChat() {
   const { user, updateUsage } = useAccount();
-  const { addToCart } = useCart();
+  const { cart, addToCart, updateQuantity } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isGated, setIsGated] = useState(false);
+
+  // ─── Inline Component: Cart-Aware Button ────────────────────────────────────
+  const CartAwareButton = ({ payload }: { payload: any }) => {
+    const existing = cart.find(c => 
+      c.food_item_name === payload.food_item_name && 
+      c.restaurant_name === payload.restaurant_name && 
+      c.restaurant_location === payload.restaurant_location
+    );
+
+    if (existing) {
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,107,0,.4)', borderRadius: '12px', padding: '6px 12px', width: '100%', justifyContent: 'space-between' }}>
+          <button onClick={() => updateQuantity(existing.id!, existing.quantity - 1)} style={{ background: 'rgba(255,255,255,.08)', border: 'none', color: '#fff', width: '38px', height: '38px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.2rem', transition: 'background 0.2s' }}>
+            {existing.quantity === 1 ? '🗑️' : '−'}
+          </button>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <span style={{ color: '#fff', fontSize: '1.1rem', fontWeight: 800, lineHeight: 1 }}>{existing.quantity}</span>
+            <span style={{ color: '#FF6B00', fontSize: '.65rem', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.05em', marginTop: '2px' }}>In Cart</span>
+          </div>
+          <button onClick={() => updateQuantity(existing.id!, existing.quantity + 1)} style={{ background: 'linear-gradient(135deg, #FF6B00, #FF2020)', border: 'none', color: '#fff', width: '38px', height: '38px', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontSize: '1.2rem', boxShadow: '0 4px 12px rgba(255,107,0,.3)' }}>
+            +
+          </button>
+        </div>
+      );
+    }
+
+    return (
+      <button 
+        onClick={() => addToCart(payload)}
+        style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', width: '100%', justifyContent: 'center' }}
+      >
+        🛒 Add to Cart
+      </button>
+    );
+  };
   const [isLimitReached, setIsLimitReached] = useState(false);
   const [phase, setPhase]   = useState<Phase>('init');
   const [profile, setProfile] = useState<DiscoveryProfile>({ location:'', craving:'', vibe:'', spice:5, budget:1, refinements:[] });
@@ -834,8 +869,8 @@ export default function MrFryChat() {
                 <h2 style={{ fontSize:'1.8rem', fontWeight:900, lineHeight:1.1, marginBottom:'6px', color:'#fff' }}>{recommendation.primary.name}</h2>
                 <p style={{ color:'#FF6B00', fontWeight:600, fontSize:'.9rem', marginBottom:'16px' }}>📍 {recommendation.primary.chain} in {recommendation.primary.area ? `${recommendation.primary.area}, ` : ''}{recommendation.primary.city || profile.location}</p>
                 <p style={{ color:'rgba(255,255,255,.7)', lineHeight:1.7, fontSize:'.95rem', marginBottom:'20px' }}>{recommendation.primary.description}</p>
-                <button 
-                  onClick={() => addToCart({
+                <div style={{ marginBottom: '20px' }}>
+                  <CartAwareButton payload={{
                     food_item_name: recommendation.primary.name,
                     restaurant_name: recommendation.primary.chain,
                     restaurant_location: `${recommendation.primary.area ? recommendation.primary.area + ', ' : ''}${recommendation.primary.city || profile.location}`,
@@ -845,13 +880,9 @@ export default function MrFryChat() {
                       swiggy_url: recommendation.primary.swiggy_url,
                       zomato_url: recommendation.primary.zomato_url,
                       ubereats_url: recommendation.primary.ubereats_url
-                    },
-                    quantity: 1
-                  })}
-                  style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', marginBottom: '20px', width: '100%', justifyContent: 'center' }}
-                >
-                  🛒 Add to Cart
-                </button>
+                    }
+                  }} />
+                </div>
                 
                 {recommendation.combo && (
                   <div style={{ background:'rgba(255,255,255,.03)', padding:'12px', borderRadius:'10px', borderLeft:'3px solid #00D4FF', marginBottom:'20px' }}>
@@ -881,24 +912,18 @@ export default function MrFryChat() {
                   <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)', marginTop:'4px', marginBottom:'4px' }}>{recommendation.backup.description}</p>
                   <span style={{ fontSize:'.75rem', color:'#FF6B00' }}>📍 {recommendation.backup.area ? `${recommendation.backup.area}, ` : ''}{recommendation.backup.city}</span>
                   <div style={{ marginTop: '16px', display: 'flex' }}>
-                    <button 
-                      onClick={() => addToCart({
-                        food_item_name: recommendation.backup.name,
-                        restaurant_name: recommendation.backup.chain,
-                        restaurant_location: `${recommendation.backup.area ? recommendation.backup.area + ', ' : ''}${recommendation.backup.city || profile.location}`,
-                        price: recommendation.backup.price,
-                        cuisine: profile.craving,
-                        metadata: {
-                          swiggy_url: recommendation.backup.swiggy_url,
-                          zomato_url: recommendation.backup.zomato_url,
-                          ubereats_url: recommendation.backup.ubereats_url
-                        },
-                        quantity: 1
-                      })}
-                      style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', width: '100%', justifyContent: 'center' }}
-                    >
-                      🛒 Add to Cart
-                    </button>
+                    <CartAwareButton payload={{
+                      food_item_name: recommendation.backup.name,
+                      restaurant_name: recommendation.backup.chain,
+                      restaurant_location: `${recommendation.backup.area ? recommendation.backup.area + ', ' : ''}${recommendation.backup.city || profile.location}`,
+                      price: recommendation.backup.price,
+                      cuisine: profile.craving,
+                      metadata: {
+                        swiggy_url: recommendation.backup.swiggy_url,
+                        zomato_url: recommendation.backup.zomato_url,
+                        ubereats_url: recommendation.backup.ubereats_url
+                      }
+                    }} />
                   </div>
                 </div>
                 {recommendation.mystery && (
@@ -923,27 +948,21 @@ export default function MrFryChat() {
                           <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.7)', marginBottom:'6px' }}>{recommendation.mystery.description}</p>
                           <span style={{ fontSize:'.75rem', color:'#FF6B00', fontWeight:600 }}>📍 {recommendation.mystery.area ? `${recommendation.mystery.area}, ` : ''}{recommendation.mystery.city}</span>
                           <div style={{ marginTop: '16px', display: 'flex' }}>
-                            <button 
-                              onClick={() => {
-                                const myst = recommendation.mystery as any;
-                                addToCart({
-                                  food_item_name: myst.name,
-                                  restaurant_name: myst.chain,
-                                  restaurant_location: `${myst.area ? myst.area + ', ' : ''}${myst.city || profile.location}`,
-                                  price: myst.price,
-                                  cuisine: profile.craving,
-                                  metadata: {
-                                    swiggy_url: myst.swiggy_url,
-                                    zomato_url: myst.zomato_url,
-                                    ubereats_url: myst.ubereats_url
-                                  },
-                                  quantity: 1
-                                });
-                              }}
-                              style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', width: '100%', justifyContent: 'center' }}
-                            >
-                              🛒 Add to Cart
-                            </button>
+                            {(() => {
+                              const myst = recommendation.mystery as any;
+                              return <CartAwareButton payload={{
+                                food_item_name: myst.name,
+                                restaurant_name: myst.chain,
+                                restaurant_location: `${myst.area ? myst.area + ', ' : ''}${myst.city || profile.location}`,
+                                price: myst.price,
+                                cuisine: profile.craving,
+                                metadata: {
+                                  swiggy_url: myst.swiggy_url,
+                                  zomato_url: myst.zomato_url,
+                                  ubereats_url: myst.ubereats_url
+                                }
+                              }} />
+                            })()}
                           </div>
                         </>
                       )}
