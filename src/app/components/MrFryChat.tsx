@@ -879,23 +879,25 @@ export default function MrFryChat() {
                   <p style={{ fontWeight:700, fontSize:'1rem' }}>{recommendation.backup.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem' }}>at {recommendation.backup.chain}</span></p>
                   <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)', marginTop:'4px', marginBottom:'4px' }}>{recommendation.backup.description}</p>
                   <span style={{ fontSize:'.75rem', color:'#FF6B00' }}>📍 {recommendation.backup.area ? `${recommendation.backup.area}, ` : ''}{recommendation.backup.city}</span>
-                  <button 
-                    onClick={() => addToCart({
-                      food_item_name: recommendation.backup.name,
-                      restaurant_name: recommendation.backup.chain,
-                      price: recommendation.backup.price,
-                      cuisine: profile.craving,
-                      metadata: {
-                        swiggy_url: recommendation.backup.swiggy_url,
-                        zomato_url: recommendation.backup.zomato_url,
-                        ubereats_url: recommendation.backup.ubereats_url
-                      },
-                      quantity: 1
-                    })}
-                    style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', marginTop: '16px' }}
-                  >
-                    🛒 Add to Cart
-                  </button>
+                  <div style={{ marginTop: '16px', display: 'flex' }}>
+                    <button 
+                      onClick={() => addToCart({
+                        food_item_name: recommendation.backup.name,
+                        restaurant_name: recommendation.backup.chain,
+                        price: recommendation.backup.price,
+                        cuisine: profile.craving,
+                        metadata: {
+                          swiggy_url: recommendation.backup.swiggy_url,
+                          zomato_url: recommendation.backup.zomato_url,
+                          ubereats_url: recommendation.backup.ubereats_url
+                        },
+                        quantity: 1
+                      })}
+                      style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', width: '100%', justifyContent: 'center' }}
+                    >
+                      🛒 Add to Cart
+                    </button>
+                  </div>
                 </div>
                 {recommendation.mystery && (
                   <div style={{ background:'rgba(155,89,182,.05)', border:'1px solid rgba(155,89,182,.2)', padding:'16px', borderRadius:'16px' }}>
@@ -918,26 +920,28 @@ export default function MrFryChat() {
                           </p>
                           <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.7)', marginBottom:'6px' }}>{recommendation.mystery.description}</p>
                           <span style={{ fontSize:'.75rem', color:'#FF6B00', fontWeight:600 }}>📍 {recommendation.mystery.area ? `${recommendation.mystery.area}, ` : ''}{recommendation.mystery.city}</span>
-                          <button 
-                            onClick={() => {
-                              const myst = recommendation.mystery as any;
-                              addToCart({
-                                food_item_name: myst.name,
-                                restaurant_name: myst.chain,
-                                price: myst.price,
-                                cuisine: profile.craving,
-                                metadata: {
-                                  swiggy_url: myst.swiggy_url,
-                                  zomato_url: myst.zomato_url,
-                                  ubereats_url: myst.ubereats_url
-                                },
-                                quantity: 1
-                              });
-                            }}
-                            style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', marginTop: '16px' }}
-                          >
-                            🛒 Add to Cart
-                          </button>
+                          <div style={{ marginTop: '16px', display: 'flex' }}>
+                            <button 
+                              onClick={() => {
+                                const myst = recommendation.mystery as any;
+                                addToCart({
+                                  food_item_name: myst.name,
+                                  restaurant_name: myst.chain,
+                                  price: myst.price,
+                                  cuisine: profile.craving,
+                                  metadata: {
+                                    swiggy_url: myst.swiggy_url,
+                                    zomato_url: myst.zomato_url,
+                                    ubereats_url: myst.ubereats_url
+                                  },
+                                  quantity: 1
+                                });
+                              }}
+                              style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'inline-flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', width: '100%', justifyContent: 'center' }}
+                            >
+                              🛒 Add to Cart
+                            </button>
+                          </div>
                         </>
                       )}
                     </div>
