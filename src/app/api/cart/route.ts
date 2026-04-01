@@ -56,6 +56,16 @@ export async function POST(req: NextRequest) {
         .update({ quantity: existing.quantity + 1 })
         .eq('id', existing.id);
     } else {
+      // Enforce max count of 10 distinct items
+      const { count } = await supabase
+        .from('cart_items')
+        .select('*', { count: 'exact', head: true })
+        .eq('user_email', email.toLowerCase());
+
+      if (count !== null && count >= 10) {
+        return NextResponse.json({ error: 'Cart is full. Maximum 10 items allowed.' }, { status: 400 });
+      }
+
       // Create new
       await supabase
         .from('cart_items')

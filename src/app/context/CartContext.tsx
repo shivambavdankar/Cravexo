@@ -62,6 +62,11 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (existingIndex > -1) {
       newCart[existingIndex].quantity += 1;
     } else {
+      // Enforce max 10 distinct items
+      if (cart.length >= 10) {
+        alert("Your cart is full. Remove an item to add a new one.");
+        return;
+      }
       newCart.push({ ...item, quantity: 1, id: 'temp-' + Date.now() });
     }
     setCart(newCart);
