@@ -47,6 +47,7 @@ export async function POST(req: NextRequest) {
       .eq('user_email', email.toLowerCase())
       .eq('food_item_name', item.food_item_name)
       .eq('restaurant_name', item.restaurant_name || '') // treating nulls securely if possible
+      .eq('restaurant_location', item.restaurant_location || '')
       .single();
 
     if (existing) {
@@ -73,6 +74,7 @@ export async function POST(req: NextRequest) {
           user_email: email.toLowerCase(),
           food_item_name: item.food_item_name,
           restaurant_name: item.restaurant_name || '',
+          restaurant_location: item.restaurant_location || '',
           price: item.price || null,
           image_url: item.image_url || null,
           cuisine: item.cuisine || null,

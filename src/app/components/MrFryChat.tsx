@@ -838,6 +838,7 @@ export default function MrFryChat() {
                   onClick={() => addToCart({
                     food_item_name: recommendation.primary.name,
                     restaurant_name: recommendation.primary.chain,
+                    restaurant_location: `${recommendation.primary.area ? recommendation.primary.area + ', ' : ''}${recommendation.primary.city || profile.location}`,
                     price: recommendation.primary.price,
                     cuisine: profile.craving,
                     metadata: {
@@ -884,6 +885,7 @@ export default function MrFryChat() {
                       onClick={() => addToCart({
                         food_item_name: recommendation.backup.name,
                         restaurant_name: recommendation.backup.chain,
+                        restaurant_location: `${recommendation.backup.area ? recommendation.backup.area + ', ' : ''}${recommendation.backup.city || profile.location}`,
                         price: recommendation.backup.price,
                         cuisine: profile.craving,
                         metadata: {
@@ -927,6 +929,7 @@ export default function MrFryChat() {
                                 addToCart({
                                   food_item_name: myst.name,
                                   restaurant_name: myst.chain,
+                                  restaurant_location: `${myst.area ? myst.area + ', ' : ''}${myst.city || profile.location}`,
                                   price: myst.price,
                                   cuisine: profile.craving,
                                   metadata: {

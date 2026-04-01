@@ -6,6 +6,7 @@ export interface CartItem {
   id?: string;
   food_item_name: string;
   restaurant_name?: string;
+  restaurant_location?: string;
   price?: string;
   image_url?: string;
   cuisine?: string;
@@ -62,7 +63,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
     if (!user?.email) return;
     
     // Optimistic UI Update (if it already exists, increment qty, otherwise push)
-    const existingIndex = cart.findIndex(c => c.food_item_name === item.food_item_name && c.restaurant_name === item.restaurant_name);
+    const existingIndex = cart.findIndex(c => c.food_item_name === item.food_item_name && c.restaurant_name === item.restaurant_name && c.restaurant_location === item.restaurant_location);
     let newCart = [...cart];
     
     if (existingIndex > -1) {

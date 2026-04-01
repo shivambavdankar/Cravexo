@@ -85,7 +85,8 @@ export default function CartDrawer() {
                     
                     <div style={{ flex: 1, minWidth: 0 }}>
                       <h4 style={{ color: '#fff', fontWeight: 700, fontSize: '1rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginBottom: '2px' }}>{item.food_item_name}</h4>
-                      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.8rem', marginBottom: '4px' }}>at {item.restaurant_name}</p>
+                      <p style={{ color: 'rgba(255,255,255,.5)', fontSize: '.8rem', marginBottom: '2px' }}>at {item.restaurant_name}</p>
+                      {item.restaurant_location && <p style={{ color: '#FF6B00', fontSize: '.75rem', fontWeight: 600, marginBottom: '6px' }}>📍 {item.restaurant_location}</p>}
                       {item.price && <p style={{ color: '#00D4FF', fontSize: '.85rem', fontWeight: 600 }}>{item.price}</p>}
                     </div>
                   </div>
