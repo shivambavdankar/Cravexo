@@ -976,32 +976,36 @@ export default function MrFryChat() {
                 <button
                   onClick={() => setCartDrawerOpen(true)}
                   style={{
-                    background: 'rgba(255,255,255,.05)',
-                    border: '1px solid rgba(255,255,255,.1)',
+                    background: 'linear-gradient(135deg, #FF6B00, #FF2020)',
+                    border: 'none',
                     borderRadius: '16px',
-                    padding: '16px 32px',
+                    padding: '16px 40px',
                     color: '#fff',
                     fontWeight: 800,
-                    fontSize: '1rem',
+                    fontSize: '1.05rem',
                     cursor: 'pointer',
                     display: 'flex',
                     alignItems: 'center',
                     gap: '12px',
-                    boxShadow: '0 4px 16px rgba(0,0,0,.5)',
-                    transition: 'all 0.2s',
+                    boxShadow: '0 8px 32px rgba(255,107,0,.35)',
+                    transition: 'transform 0.2s, box-shadow 0.2s',
+                    width: '100%',
+                    justifyContent: 'center',
+                    maxWidth: '300px'
                   }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,.08)'; e.currentTarget.style.borderColor = 'rgba(255,107,0,.4)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)'; }}
+                  onMouseEnter={e => { e.currentTarget.style.transform = 'scale(1.02)'; e.currentTarget.style.boxShadow = '0 12px 40px rgba(255,107,0,.5)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.transform = 'scale(1)'; e.currentTarget.style.boxShadow = '0 8px 32px rgba(255,107,0,.35)'; }}
                 >
-                  View Cart
+                  🛒 View Cart
                   {cart.length > 0 && (
                     <span style={{
-                      background: '#FF6B00',
-                      color: '#fff',
-                      padding: '2px 8px',
+                      background: '#fff',
+                      color: '#FF2020',
+                      padding: '4px 10px',
                       borderRadius: '12px',
-                      fontSize: '.8rem',
-                      fontWeight: 800,
+                      fontSize: '.85rem',
+                      fontWeight: 900,
+                      boxShadow: '0 2px 8px rgba(0,0,0,.2)'
                     }}>
                       {cart.length}
                     </span>
