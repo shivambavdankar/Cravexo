@@ -821,7 +821,7 @@ export default function MrFryChat() {
               
               {/* Grand Reveal Card */}
               <div style={{ background:'linear-gradient(135deg, rgba(12,14,26,1) 0%, rgba(30,15,5,1) 100%)', border:'1px solid rgba(255,107,0,.4)', borderRadius:'20px', padding:'24px', boxShadow:'0 20px 60px rgba(255,107,0,.15)', position:'relative', overflow:'hidden' }}>
-                <div style={{ position:'absolute', top:'-50%', right:'-50%', width:'100%', height:'100%', background:'radial-gradient(circle, rgba(255,107,0,0.1), transparent)', pointerEvents:'none' }} />
+                <div style={{ position:'absolute', top:0, right:0, width:'100%', height:'100%', background:'radial-gradient(circle at top right, rgba(255,107,0,0.15), transparent 60%)', pointerEvents:'none' }} />
                 
                 <div style={{ display:'flex', justifyContent:'space-between', alignItems:'flex-start', marginBottom:'16px' }}>
                   <span style={{ fontSize:'.7rem', fontWeight:800, letterSpacing:'.1em', textTransform:'uppercase', color:'#FFD700', background:'rgba(255,215,0,.1)', border:'1px solid rgba(255,215,0,.3)', padding:'4px 12px', borderRadius:'20px' }}>🎯 Primary Target</span>
