@@ -89,7 +89,7 @@ const isSpiceRelevant = (craving: string): boolean => {
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function MrFryChat() {
   const { user, updateUsage } = useAccount();
-  const { cart, addToCart, updateQuantity } = useCart();
+  const { cart, addToCart, updateQuantity, setIsOpen: setCartDrawerOpen } = useCart();
   const [isOpen, setIsOpen] = useState(false);
   const [isGated, setIsGated] = useState(false);
 
@@ -969,6 +969,44 @@ export default function MrFryChat() {
                     </div>
                   </div>
                 )}
+              </div>
+
+              {/* View Cart Explicit CTA */}
+              <div style={{ marginTop: '32px', display: 'flex', justifyContent: 'center' }}>
+                <button
+                  onClick={() => setCartDrawerOpen(true)}
+                  style={{
+                    background: 'rgba(255,255,255,.05)',
+                    border: '1px solid rgba(255,255,255,.1)',
+                    borderRadius: '16px',
+                    padding: '16px 32px',
+                    color: '#fff',
+                    fontWeight: 800,
+                    fontSize: '1rem',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    boxShadow: '0 4px 16px rgba(0,0,0,.5)',
+                    transition: 'all 0.2s',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(255,255,255,.08)'; e.currentTarget.style.borderColor = 'rgba(255,107,0,.4)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(255,255,255,.05)'; e.currentTarget.style.borderColor = 'rgba(255,255,255,.1)'; }}
+                >
+                  View Cart
+                  {cart.length > 0 && (
+                    <span style={{
+                      background: '#FF6B00',
+                      color: '#fff',
+                      padding: '2px 8px',
+                      borderRadius: '12px',
+                      fontSize: '.8rem',
+                      fontWeight: 800,
+                    }}>
+                      {cart.length}
+                    </span>
+                  )}
+                </button>
               </div>
 
               {/* BOTTOM: REFINEMENT INLINE SECTION */}

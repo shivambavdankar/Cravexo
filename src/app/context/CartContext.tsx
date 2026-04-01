@@ -77,7 +77,6 @@ export function CartProvider({ children }: { children: ReactNode }) {
       newCart.push({ ...item, quantity: 1, id: 'temp-' + Date.now() });
     }
     setCart(newCart);
-    setIsOpen(true); // Pop open the cart drawer
 
     // Background sync to db
     try {
