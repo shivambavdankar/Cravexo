@@ -55,7 +55,7 @@ const MAIN_CATEGORIES: { id: string; emoji: string; label: string; subs: string[
   { id:'pizza',         emoji:'🍕', label:'Pizza',          subs:['Margherita','Pepperoni','BBQ Chicken','Veggie Supreme','White Pizza','Thin Crust'] },
   { id:'sandwiches',    emoji:'🥪', label:'Sandwiches',     subs:['Fried Chicken Sandwich','Grilled Chicken Sandwich','Club Sandwich','Subs','Wraps','Panini'] },
   { id:'asian',         emoji:'🍜', label:'Asian',          subs:['Noodles','Fried Rice','Dumplings','Ramen','Bao Buns','Spring Rolls'] },
-  { id:'thai',          emoji:'🌶️', label:'Thai',           subs:['Pad Thai','Thai Curry','Tom Yum','Thai Fried Rice','Thai Street Food'] },
+  { id:'thai',          emoji:'🌶️', label:'Thai',           subs:['Pad Thai','Thai Curry','Tom Yum','Thai Fried Rice','Thai Street Food','Drunken Noodles'] },
   { id:'chinese',       emoji:'🥟', label:'Chinese',        subs:['Dim Sum','Kung Pao','Chow Mein','Hot Pot','Ma Po Tofu'] },
   { id:'mexican',       emoji:'🌮', label:'Mexican',        subs:['Tacos','Burritos','Quesadillas','Nachos','Enchiladas'] },
   { id:'american',      emoji:'🍗', label:'American',       subs:['BBQ Ribs','Mac & Cheese','Loaded Fries','Fried Chicken','Hot Dog'] },
