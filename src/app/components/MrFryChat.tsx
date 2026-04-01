@@ -847,7 +847,7 @@ export default function MrFryChat() {
                     },
                     quantity: 1
                   })}
-                  style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', marginBottom: '20px' }}
+                  style={{ padding: '12px 24px', background: 'linear-gradient(135deg, #FF6B00, #FF2020)', color: '#fff', border: 'none', borderRadius: '12px', fontWeight: 800, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px', boxShadow: '0 8px 24px rgba(255,107,0,.3)', marginBottom: '20px', width: '100%', justifyContent: 'center' }}
                 >
                   🛒 Add to Cart
                 </button>
