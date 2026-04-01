@@ -125,7 +125,7 @@ Return ONLY valid JSON matching this exact structure:
     "backup": { "name": "Alternative Dish", "description": "Why backup fits", "price": "₹150 or $8", "chain": "Alternative Restaurant", "city": "City Name", "area": "Neighborhood or Area" },
     "explanation": "Brief specifically explaining why this fits their vibe and constraints",
     "combo": "A fun drink/side pairing suggestion",
-    "mystery": "A wild-card suggestion from a completely different cuisine in their area"
+    "mystery": { "name": "Wildcard Dish", "description": "A totally unexpected suggestion from a different cuisine", "price": "₹350 or $15", "chain": "Wildcard Restaurant Name", "city": "City Name", "area": "Neighborhood or Area" }
   }
 }`;
 
@@ -226,10 +226,10 @@ export async function POST(req: NextRequest) {
         message: "I had a minor brain freeze dealing with all this data. But I won't leave you hungry. Here's a solid hit.",
         recommendation: {
           primary: { name: "Spicy Deluxe Chicken Sandwich", description: "Crispy, bold, and satisfying.", price: "$$", chain: "Chick-fil-A" },
-          backup: { name: "McDouble", description: "If we need to stay perfectly on a tight budget.", price: "$", chain: "McDonald's" },
+          backup: { name: "McDouble", description: "If we need to stay perfectly on a tight budget.", price: "$", chain: "McDonald's", city: "Your City", area: "Downtown" },
           explanation: "It fits because sometimes you just need something perfectly familiar with a bit of a kick.",
           combo: "Add some loaded fries for the full experience.",
-          mystery: "Wild card: That local pizza spot everyone talks about."
+          mystery: { name: "Mystery Pizza Slice", description: "That local pizza spot everyone talks about.", price: "$$", chain: "Local Pizza Joint", city: "Your City", area: "Downtown" }
         }
       });
     }
