@@ -810,7 +810,31 @@ export default function MrFryChat() {
                 </div>
               </div>
 
-              <button onClick={submitDetails} style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:700, fontSize:'1rem', cursor:'pointer', boxShadow:'0 8px 30px rgba(255,107,0,0.3)' }}>Generate Recommendation ⚡</button>
+              <div style={{ textAlign: 'center', marginTop: '24px' }}>
+                <p style={{ fontSize: '.75rem', color: 'rgba(255,255,255,.6)', fontWeight: 700, letterSpacing: '.05em', marginBottom: '12px', textTransform:'uppercase' }}>
+                  Ready for Mr. Fry's pick?
+                </p>
+                <button onClick={submitDetails} style={{ width:'100%', padding:'16px', background:'linear-gradient(135deg, #FF6B00, #FF2020)', border:'none', borderRadius:'12px', color:'#fff', fontWeight:800, fontSize:'1.1rem', cursor:'pointer', boxShadow:'0 8px 30px rgba(255,107,0,0.3)', transition: 'transform 0.2s', letterSpacing:'.03em' }}
+                  onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                  onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}>
+                  {(() => {
+                    let ctaText = "Find My Match ⚡";
+                    if (profile.craving) {
+                      const raw = profile.craving.replace(/[^a-zA-Z\s]/g, '').trim();
+                      const words = raw.split(/\s+/);
+                      const lower = raw.toLowerCase();
+                      const exclusions = ['something', 'anything', 'good', 'food', 'meal', 'hungry', 'idk', 'surprise'];
+                      const isExcluded = exclusions.some(ex => lower.includes(ex));
+
+                      if (!isExcluded && words.length > 0 && words.length <= 2 && raw.length > 2 && raw.length <= 16) {
+                        const formatted = words.map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(' ');
+                        ctaText = `Pick My ${formatted} ⚡`;
+                      }
+                    }
+                    return ctaText;
+                  })()}
+                </button>
+              </div>
             </div>
           );
           })()}
