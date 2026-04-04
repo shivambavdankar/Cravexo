@@ -29,9 +29,11 @@ function normalizePlace(place: any): RestaurantCandidate {
   const address: string = place.formattedAddress || '';
   const parts = address.split(',').map((p: string) => p.trim());
 
-  // Heuristic: area = first segment, city = second-to-last segment
-  const area = parts.length >= 3 ? parts[0] : '';
-  const city = parts.length >= 2 ? parts[parts.length - 2] : parts[0] || '';
+  // Standard Google Places address format:
+  // "123 Street Name, City, State ZIP, Country"
+  // parts[0] = street  |  parts[1] = city  |  parts[2] = state+zip  |  parts[3] = country
+  const area = parts[0] || '';        // street / neighborhood
+  const city = parts[1] || parts[0] || ''; // city name (skip state/zip/country)
 
   return {
     place_id: place.id || '',
