@@ -90,22 +90,12 @@ const isSpiceRelevant = (craving: string): boolean => {
   return !sweetKeywords.some(kw => c.includes(kw));
 };
 // ─── Display Helper: Format Location for User-Facing Cards ─────────────────────
-// Takes the full raw address from Google Places and strips state/zip/country,
-// keeping only the meaningful segments (street, suite, neighborhood, city).
-// E.g. "1234 Crest Ave, Oakland, CA 94605, USA"  → "1234 Crest Ave, Oakland, CA"
-// E.g. "Linking Road, Bandra West, Mumbai, MH 400050, India" → "Linking Road, Bandra West, Mumbai, MH"
+// Returns the complete raw address from Google Places without any trimming.
 function formatLocation(area: string, city: string, rawAddress?: string): string {
   if (rawAddress) {
-    const parts = rawAddress.split(',').map(p => p.trim()).filter(Boolean);
-    // Drop the last segment (Country)
-    const clean = parts.slice(0, Math.max(parts.length - 1, 1));
-    // The new last segment is usually "State Zipcode" (e.g., "CA 94605"). Strip the numbers.
-    if (clean.length > 0) {
-      clean[clean.length - 1] = clean[clean.length - 1].replace(/\s*\d[\d\s-]*$/, '');
-    }
-    return clean.join(', ');
+    return rawAddress;
   }
-  // Fallback: use pre-parsed area + city fields
+  // Fallback for old cache entries that don't have the rawAddress field
   return [area, city].filter(Boolean).join(', ');
 }
 
