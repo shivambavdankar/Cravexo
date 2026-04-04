@@ -19,16 +19,19 @@ interface DiscoveryProfile {
 
 interface Recommendation {
   primary: { 
-    name: string; description: string; price: string; chain: string; city: string; area: string; 
+    name: string; description: string; price: string; chain: string; city: string; area: string;
+    rating?: number; rating_count?: number; place_id?: string;
     zomato_url?: string; swiggy_url?: string; ubereats_url?: string; doordash_url?: string; grubhub_url?: string; restaurant_url?: string;
   };
   backup:  { 
-    name: string; description: string; price: string; chain: string; city: string; area: string; 
+    name: string; description: string; price: string; chain: string; city: string; area: string;
+    rating?: number; rating_count?: number; place_id?: string;
     zomato_url?: string; swiggy_url?: string; ubereats_url?: string; doordash_url?: string; grubhub_url?: string; restaurant_url?: string;
   };
   explanation: string; combo: string; 
   mystery?: string | { 
-    name: string; description: string; price?: string; chain: string; city: string; area: string; 
+    name: string; description: string; price?: string; chain: string; city: string; area: string;
+    rating?: number; rating_count?: number; place_id?: string;
     zomato_url?: string; swiggy_url?: string; ubereats_url?: string; doordash_url?: string; grubhub_url?: string; restaurant_url?: string;
   };
   zomato_url?: string;
@@ -867,7 +870,13 @@ export default function MrFryChat() {
                 </div>
                 
                 <h2 style={{ fontSize:'1.8rem', fontWeight:900, lineHeight:1.1, marginBottom:'6px', color:'#fff' }}>{recommendation.primary.name}</h2>
-                <p style={{ color:'#FF6B00', fontWeight:600, fontSize:'.9rem', marginBottom:'16px' }}>📍 {recommendation.primary.chain} in {recommendation.primary.area ? `${recommendation.primary.area}, ` : ''}{recommendation.primary.city || profile.location}</p>
+                <p style={{ color:'#FF6B00', fontWeight:600, fontSize:'.9rem', marginBottom: recommendation.primary.rating ? '6px' : '16px' }}>📍 {recommendation.primary.chain} in {recommendation.primary.area ? `${recommendation.primary.area}, ` : ''}{recommendation.primary.city || profile.location}</p>
+                {recommendation.primary.rating && (
+                  <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'14px' }}>
+                    <span style={{ background:'rgba(255,215,0,.15)', border:'1px solid rgba(255,215,0,.3)', borderRadius:'8px', padding:'3px 10px', fontSize:'.8rem', fontWeight:800, color:'#FFD700' }}>⭐ {recommendation.primary.rating.toFixed(1)}</span>
+                    {recommendation.primary.rating_count && <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.75rem' }}>({recommendation.primary.rating_count >= 1000 ? `${(recommendation.primary.rating_count/1000).toFixed(1)}k` : recommendation.primary.rating_count} reviews)</span>}
+                  </div>
+                )}
                 <p style={{ color:'rgba(255,255,255,.7)', lineHeight:1.7, fontSize:'.95rem', marginBottom:'20px' }}>{recommendation.primary.description}</p>
                 <div style={{ marginBottom: '20px' }}>
                   <CartAwareButton payload={{
@@ -911,6 +920,12 @@ export default function MrFryChat() {
                   <p style={{ fontWeight:700, fontSize:'1rem' }}>{recommendation.backup.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem' }}>at {recommendation.backup.chain}</span></p>
                   <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)', marginTop:'4px', marginBottom:'4px' }}>{recommendation.backup.description}</p>
                   <span style={{ fontSize:'.75rem', color:'#FF6B00' }}>📍 {recommendation.backup.area ? `${recommendation.backup.area}, ` : ''}{recommendation.backup.city}</span>
+                  {recommendation.backup.rating && (
+                    <div style={{ display:'flex', alignItems:'center', gap:'6px', marginTop:'6px' }}>
+                      <span style={{ background:'rgba(255,215,0,.12)', border:'1px solid rgba(255,215,0,.25)', borderRadius:'8px', padding:'2px 8px', fontSize:'.75rem', fontWeight:800, color:'#FFD700' }}>⭐ {recommendation.backup.rating.toFixed(1)}</span>
+                      {recommendation.backup.rating_count && <span style={{ color:'rgba(255,255,255,.35)', fontSize:'.7rem' }}>({recommendation.backup.rating_count >= 1000 ? `${(recommendation.backup.rating_count/1000).toFixed(1)}k` : recommendation.backup.rating_count} reviews)</span>}
+                    </div>
+                  )}
                   <div style={{ marginTop: '16px', display: 'flex' }}>
                     <CartAwareButton payload={{
                       food_item_name: recommendation.backup.name,
@@ -947,6 +962,12 @@ export default function MrFryChat() {
                           </p>
                           <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.7)', marginBottom:'6px' }}>{recommendation.mystery.description}</p>
                           <span style={{ fontSize:'.75rem', color:'#FF6B00', fontWeight:600 }}>📍 {recommendation.mystery.area ? `${recommendation.mystery.area}, ` : ''}{recommendation.mystery.city}</span>
+                          {(recommendation.mystery as any).rating && (
+                            <div style={{ display:'flex', alignItems:'center', gap:'6px', marginTop:'6px' }}>
+                              <span style={{ background:'rgba(200,150,255,.12)', border:'1px solid rgba(200,150,255,.25)', borderRadius:'8px', padding:'2px 8px', fontSize:'.75rem', fontWeight:800, color:'#C896FF' }}>⭐ {(recommendation.mystery as any).rating.toFixed(1)}</span>
+                              {(recommendation.mystery as any).rating_count && <span style={{ color:'rgba(255,255,255,.35)', fontSize:'.7rem' }}>({(recommendation.mystery as any).rating_count >= 1000 ? `${((recommendation.mystery as any).rating_count/1000).toFixed(1)}k` : (recommendation.mystery as any).rating_count} reviews)</span>}
+                            </div>
+                          )}
                           <div style={{ marginTop: '16px', display: 'flex' }}>
                             {(() => {
                               const myst = recommendation.mystery as any;
