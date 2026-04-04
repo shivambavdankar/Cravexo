@@ -292,6 +292,7 @@ function assembleRecommendation(
     description:  pick.description,
     price:        pick.price_estimate,
     chain:        candidate.name,
+    address:      candidate.address,   // Now explicitly passed to frontend!
     city:         candidate.city,
     area:         candidate.area,
     rating:       candidate.rating,
