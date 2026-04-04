@@ -29,23 +29,15 @@ function normalizePlace(place: any): RestaurantCandidate {
   const address: string = place.formattedAddress || '';
   const parts = address.split(',').map((p: string) => p.trim());
 
-  // Standard Google Places address format:
-  // "Suite, Street, City, State ZIP, Country"
-  // Drop the last 2 segments (state+zip and country) — keep everything up to city.
-  // E.g. "1234 Crest Ave, Oakland, CA 94605, USA"
-  //   → cleanParts = ["1234 Crest Ave", "Oakland"]
-  //   → area = "1234 Crest Ave", city = "Oakland"
-  // E.g. "Suite 5, 1234 Crest Ave, Oakland, CA 94605, USA"
-  //   → cleanParts = ["Suite 5", "1234 Crest Ave", "Oakland"]
-  //   → area = "Suite 5, 1234 Crest Ave", city = "Oakland"
-  const cleanParts = parts.slice(0, Math.max(parts.length - 2, 1));
-  const city = cleanParts[cleanParts.length - 1] || '';  // last clean segment = city
-  const area = cleanParts.slice(0, -1).join(', ');       // everything before city = street/suite
+  // Keep backend normalization simple and stable.
+  // Display formatting (trimming state/zip/country) is handled in the UI layer.
+  const area = parts[0] || '';
+  const city = parts[1] || parts[0] || '';
 
   return {
     place_id: place.id || '',
     name: place.displayName?.text || 'Unknown Restaurant',
-    address,
+    address,   // full raw address stored for UI to format
     area,
     city,
     rating: place.rating ?? undefined,

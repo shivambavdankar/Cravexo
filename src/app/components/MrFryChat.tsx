@@ -89,6 +89,22 @@ const isSpiceRelevant = (craving: string): boolean => {
   ];
   return !sweetKeywords.some(kw => c.includes(kw));
 };
+// ─── Display Helper: Format Location for User-Facing Cards ─────────────────────
+// Takes the full raw address from Google Places and strips state/zip/country,
+// keeping only the meaningful segments (street, suite, neighborhood, city).
+// E.g. "1234 Crest Ave, Oakland, CA 94605, USA"  → "1234 Crest Ave, Oakland"
+// E.g. "Linking Road, Bandra West, Mumbai, MH, India" → "Linking Road, Bandra West, Mumbai"
+function formatLocation(area: string, city: string, rawAddress?: string): string {
+  if (rawAddress) {
+    const parts = rawAddress.split(',').map(p => p.trim()).filter(Boolean);
+    // Drop last 2 segments (state/zip + country) — keep everything up to city
+    const clean = parts.slice(0, Math.max(parts.length - 2, 1));
+    return clean.join(', ');
+  }
+  // Fallback: use pre-parsed area + city fields
+  return [area, city].filter(Boolean).join(', ');
+}
+
 // ─── Main Component ─────────────────────────────────────────────────────────────
 export default function MrFryChat() {
   const { user, updateUsage } = useAccount();
@@ -870,7 +886,7 @@ export default function MrFryChat() {
                 </div>
                 
                 <h2 style={{ fontSize:'1.8rem', fontWeight:900, lineHeight:1.1, marginBottom:'6px', color:'#fff' }}>{recommendation.primary.name}</h2>
-                <p style={{ color:'#FF6B00', fontWeight:600, fontSize:'.9rem', marginBottom: recommendation.primary.rating ? '6px' : '16px' }}>📍 {recommendation.primary.chain} in {recommendation.primary.area ? `${recommendation.primary.area}, ` : ''}{recommendation.primary.city || profile.location}</p>
+                <p style={{ color:'#FF6B00', fontWeight:600, fontSize:'.9rem', marginBottom: recommendation.primary.rating ? '6px' : '16px' }}>📍 {recommendation.primary.chain} — {formatLocation(recommendation.primary.area, recommendation.primary.city, (recommendation.primary as any).address)}</p>
                 {recommendation.primary.rating && (
                   <div style={{ display:'flex', alignItems:'center', gap:'6px', marginBottom:'14px' }}>
                     <span style={{ background:'rgba(255,215,0,.15)', border:'1px solid rgba(255,215,0,.3)', borderRadius:'8px', padding:'3px 10px', fontSize:'.8rem', fontWeight:800, color:'#FFD700' }}>⭐ {recommendation.primary.rating.toFixed(1)}</span>
@@ -919,7 +935,7 @@ export default function MrFryChat() {
                   </div>
                   <p style={{ fontWeight:700, fontSize:'1rem' }}>{recommendation.backup.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem' }}>at {recommendation.backup.chain}</span></p>
                   <p style={{ fontSize:'.8rem', color:'rgba(255,255,255,.5)', marginTop:'4px', marginBottom:'4px' }}>{recommendation.backup.description}</p>
-                  <span style={{ fontSize:'.75rem', color:'#FF6B00' }}>📍 {recommendation.backup.area ? `${recommendation.backup.area}, ` : ''}{recommendation.backup.city}</span>
+                  <span style={{ fontSize:'.75rem', color:'#FF6B00' }}>📍 {formatLocation(recommendation.backup.area, recommendation.backup.city, (recommendation.backup as any).address)}</span>
                   {recommendation.backup.rating && (
                     <div style={{ display:'flex', alignItems:'center', gap:'6px', marginTop:'6px' }}>
                       <span style={{ background:'rgba(255,215,0,.12)', border:'1px solid rgba(255,215,0,.25)', borderRadius:'8px', padding:'2px 8px', fontSize:'.75rem', fontWeight:800, color:'#FFD700' }}>⭐ {recommendation.backup.rating.toFixed(1)}</span>
@@ -961,7 +977,7 @@ export default function MrFryChat() {
                             {recommendation.mystery.name} <span style={{ color:'rgba(255,255,255,.4)', fontSize:'.8rem', fontWeight:500 }}>at {recommendation.mystery.chain}</span>
                           </p>
                           <p style={{ fontSize:'.85rem', color:'rgba(255,255,255,.7)', marginBottom:'6px' }}>{recommendation.mystery.description}</p>
-                          <span style={{ fontSize:'.75rem', color:'#FF6B00', fontWeight:600 }}>📍 {recommendation.mystery.area ? `${recommendation.mystery.area}, ` : ''}{recommendation.mystery.city}</span>
+                          <span style={{ fontSize:'.75rem', color:'#FF6B00', fontWeight:600 }}>📍 {formatLocation(recommendation.mystery.area, recommendation.mystery.city, (recommendation.mystery as any).address)}</span>
                           {(recommendation.mystery as any).rating && (
                             <div style={{ display:'flex', alignItems:'center', gap:'6px', marginTop:'6px' }}>
                               <span style={{ background:'rgba(200,150,255,.12)', border:'1px solid rgba(200,150,255,.25)', borderRadius:'8px', padding:'2px 8px', fontSize:'.75rem', fontWeight:800, color:'#C896FF' }}>⭐ {(recommendation.mystery as any).rating.toFixed(1)}</span>
