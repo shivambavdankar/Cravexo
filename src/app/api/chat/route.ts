@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { createClient } from '@supabase/supabase-js';
 import { searchRestaurants, RestaurantCandidate } from '@/lib/places/googlePlaces';
+import { upsertRestaurantLinks } from '@/lib/restaurantLinks/upsertRestaurant';
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
@@ -355,6 +356,21 @@ export async function POST(req: NextRequest) {
           if (mLinks.status === 'fulfilled' && mLinks.value) Object.assign(mystery, mLinks.value);
 
           console.log('[MrFry] ✅ Returning hybrid recommendation (Google Places + Gemini)');
+
+          // Fire-and-forget upsert — runs after response is sent, zero latency impact
+          upsertRestaurantLinks(
+            [primary, backup, mystery].map(r => ({
+              chain:       r!.chain,
+              city:        r!.city,
+              area:        r!.area,
+              address:     (r as any).address,
+              place_id:    (r as any).place_id,
+              rating:      (r as any).rating,
+              price_level: (r as any).price_level,
+            })),
+            'hybrid',
+          ).catch(err => console.error('[MrFry] upsertRestaurantLinks (hybrid) error:', err));
+
           return NextResponse.json({
             source: 'hybrid',
             message: rankingResp.message,
@@ -406,6 +422,17 @@ ${dietaryRule}`;
     }
 
     console.log('[MrFry] Returning Gemini fallback recommendation.');
+
+    // Fire-and-forget upsert for fallback recommendations (no place_id available)
+    if (fallbackResp.recommendation) {
+      const { primary: fp, backup: fb, mystery: fm } = fallbackResp.recommendation;
+      const fallbackRecs = [fp, fb, typeof fm === 'object' ? fm : null]
+        .filter(Boolean)
+        .map((r: any) => ({ chain: r.chain, city: r.city, area: r.area }));
+      upsertRestaurantLinks(fallbackRecs, 'gemini_fallback')
+        .catch(err => console.error('[MrFry] upsertRestaurantLinks (fallback) error:', err));
+    }
+
     return NextResponse.json(fallbackResp);
 
   } catch (err) {
