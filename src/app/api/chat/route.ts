@@ -226,9 +226,9 @@ Return ONLY valid JSON:
 {
   "message": "Short hype opening from Mr. Fry, NOT robotic",
   "picks": {
-    "primary": { "place_id": "...", "dish_name": "Specific dish", "description": "Mouth-watering 1-2 sentences", "price_estimate": "₹350 or $14" },
-    "backup":  { "place_id": "...", "dish_name": "Specific dish", "description": "Why it's a great alternative", "price_estimate": "₹200 or $10" },
-    "mystery": { "place_id": "...", "dish_name": "Wildcard dish", "description": "Unexpected but exciting reason to try", "price_estimate": "₹400 or $16" }
+    "primary": { "place_id": "...", "dish_name": "Specific dish", "description": "Mouth-watering 1-2 sentences", "price_estimate": "Local currency only (e.g. ₹350, $14, £12)" },
+    "backup":  { "place_id": "...", "dish_name": "Specific dish", "description": "Why it's a great alternative", "price_estimate": "Local currency only (e.g. ₹200, $10, £8)" },
+    "mystery": { "place_id": "...", "dish_name": "Wildcard dish", "description": "Unexpected but exciting reason to try", "price_estimate": "Local currency only (e.g. ₹400, $16, £15)" }
   },
   "explanation": "Short sentence connecting picks to vibe/budget/spice",
   "combo": "Fun drink or side pairing suggestion"
@@ -268,11 +268,11 @@ Return ONLY valid JSON:
 {
   "message": "A short, highly contextual conversational response from Mr. Fry",
   "recommendation": {
-    "primary": { "name": "Dish Name", "description": "Mouth-watering desc", "price": "₹300 or $12", "chain": "Restaurant Name", "city": "City", "area": "Neighborhood" },
-    "backup":  { "name": "Alternative Dish", "description": "Why backup fits", "price": "₹150 or $8", "chain": "Alt Restaurant", "city": "City", "area": "Neighborhood" },
+    "primary": { "name": "Dish Name", "description": "Mouth-watering desc", "price": "Local currency only (e.g. ₹300, $12)", "chain": "Restaurant Name", "city": "City", "area": "Neighborhood" },
+    "backup":  { "name": "Alternative Dish", "description": "Why backup fits", "price": "Local currency only (e.g. ₹150, $8)", "chain": "Alt Restaurant", "city": "City", "area": "Neighborhood" },
     "explanation": "Brief why this fits their vibe and constraints",
     "combo": "A fun drink/side pairing suggestion",
-    "mystery": { "name": "Wildcard Dish", "description": "Unexpected suggestion", "price": "₹350 or $15", "chain": "Wildcard Restaurant", "city": "City", "area": "Neighborhood" }
+    "mystery": { "name": "Wildcard Dish", "description": "Unexpected suggestion", "price": "Local currency only (e.g. ₹350, $15)", "chain": "Wildcard Restaurant", "city": "City", "area": "Neighborhood" }
   }
 }`;
 
