@@ -39,26 +39,32 @@ function getSupabase() {
 async function verifyUrl(url: string): Promise<boolean> {
   try {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 6000);
+    const timeout = setTimeout(() => controller.abort(), 2500); // Fast fail for Vercel
 
     try {
       const res = await fetch(url, {
         method: 'HEAD',
         redirect: 'follow',
         signal: controller.signal,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+        }
       });
       clearTimeout(timeout);
 
+      // Many delivery apps (Swiggy, DoorDash) return 403 to bots, but 404 for non-existent pages.
+      // So 403 means "the endpoint is there, but you are a bot" -> valid URL!
       if (res.status === 405) {
-        // Server doesn't support HEAD — try GET
         const getRes = await fetch(url, {
           method: 'GET',
           redirect: 'follow',
-          signal: AbortSignal.timeout(6000),
+          signal: AbortSignal.timeout(2500),
+          headers: { 'User-Agent': 'Mozilla/5.0' }
         });
-        return getRes.status >= 200 && getRes.status < 400;
+        return (getRes.status >= 200 && getRes.status < 400) || getRes.status === 403;
       }
-      return res.status >= 200 && res.status < 400;
+      return (res.status >= 200 && res.status < 400) || res.status === 403;
     } catch {
       clearTimeout(timeout);
       return false;
@@ -178,30 +184,36 @@ export async function enrichRestaurant(payload: EnrichmentPayload): Promise<void
   // ── 3. Gemini URL suggestions ──────────────────────────────────────────────
   const suggestions = await suggestUrls(restaurant_name, city, resolvedCountry, missingPlatforms);
 
-  // ── 4 & 5. Verify each suggestion and save only verified ones ─────────────
+  // ── 4 & 5. Verify each suggestion in PARALLEL and save only verified ones ─
   const patch: Record<string, any> = { updated_at: now };
   let verifiedCount = 0;
   let totalConfidence = 0;
   let attemptedCount = 0;
 
-  for (const col of missingPlatforms) {
-    const suggestion = suggestions[col];
-    if (!suggestion?.url || suggestion.confidence < CONFIDENCE_THRESHOLD) {
-      console.log(`[Enrichment] Skipping ${col} — url null or confidence too low (${suggestion?.confidence ?? 0})`);
-      continue;
-    }
+  const validSuggestions = missingPlatforms
+    .map(col => ({ col, suggestion: suggestions[col] }))
+    .filter(x => x.suggestion?.url && x.suggestion.confidence >= CONFIDENCE_THRESHOLD);
 
-    attemptedCount++;
-    console.log(`[Enrichment] Verifying ${col}: ${suggestion.url}`);
-    const isValid = await verifyUrl(suggestion.url);
+  attemptedCount = validSuggestions.length;
 
-    if (isValid) {
-      patch[col] = suggestion.url;
-      verifiedCount++;
-      totalConfidence += suggestion.confidence;
-      console.log(`[Enrichment] ✅ Verified ${col}: ${suggestion.url}`);
-    } else {
-      console.log(`[Enrichment] ❌ Verification failed for ${col}: ${suggestion.url}`);
+  if (attemptedCount > 0) {
+    console.log(`[Enrichment] Verifying ${attemptedCount} URLs in parallel...`);
+    const results = await Promise.all(
+      validSuggestions.map(async ({ col, suggestion }) => {
+        const isValid = await verifyUrl(suggestion!.url!);
+        return { col, suggestion, isValid };
+      })
+    );
+
+    for (const { col, suggestion, isValid } of results) {
+      if (isValid) {
+        patch[col] = suggestion!.url;
+        verifiedCount++;
+        totalConfidence += suggestion!.confidence;
+        console.log(`[Enrichment] ✅ Verified ${col}: ${suggestion!.url}`);
+      } else {
+        console.log(`[Enrichment] ❌ Verification failed for ${col}: ${suggestion!.url}`);
+      }
     }
   }
 
