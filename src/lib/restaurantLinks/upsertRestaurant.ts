@@ -140,8 +140,9 @@ async function upsertSingle(input: RecommendedRestaurantInput): Promise<UpsertRe
       restaurant_name:    input.restaurant_name,
       city:               input.city,
       area:               input.area,
+      state:              'Unknown', // fallback for NOT NULL constraint
       formatted_address:  input.formatted_address  ?? null,
-      country:            input.country             ?? null,
+      country:            input.country             ?? 'Unknown', // fallback for NOT NULL constraint
       google_place_id:    input.google_place_id     ?? null,
       rating:             input.rating              ?? null,
       price_level:        input.price_level         ?? null,
