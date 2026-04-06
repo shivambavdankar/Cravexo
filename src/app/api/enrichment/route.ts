@@ -78,14 +78,49 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// Allow GET for health check / manual trigger from browser
-export async function GET() {
-  return NextResponse.json({
-    status: 'ok',
-    description: 'POST to this endpoint to enrich pending restaurant_links rows.',
-    modes: {
-      single: 'POST { row_id, restaurant_name, city, country }',
-      batch:  'POST {} — processes up to 10 pending rows',
-    },
-  });
+// Allow GET for Vercel Cron trigger
+export async function GET(req: NextRequest) {
+  try {
+    const supabase = getSupabase();
+    
+    // Auth check for production cron (optional but good practice)
+    // const authHeader = req.headers.get('authorization');
+    // if (process.env.VERCEL_CRON_SECRET && authHeader !== `Bearer ${process.env.VERCEL_CRON_SECRET}`) {
+    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    // }
+
+    const { data: pendingRows, error } = await supabase
+      .from('restaurant_links')
+      .select('id, restaurant_name, city, country, google_place_id')
+      .in('enrichment_status', ['pending', 'review_needed'])
+      .is('enrichment_attempted_at', null)
+      .limit(10);
+
+    if (error) {
+      console.error('[Enrichment API] Failed to fetch pending rows on GET:', error.message);
+      return NextResponse.json({ error: 'DB error' }, { status: 500 });
+    }
+
+    if (!pendingRows?.length) {
+      return NextResponse.json({ status: 'nothing_to_enrich' });
+    }
+
+    console.log(`[Enrichment API - CRON] Batch processing ${pendingRows.length} pending restaurants.`);
+
+    // Process sequentially
+    for (const row of pendingRows) {
+      await enrichRestaurant({
+        row_id:          row.id,
+        restaurant_name: row.restaurant_name,
+        city:            row.city,
+        country:         row.country,
+        google_place_id: row.google_place_id,
+      }).catch(err => console.error(`[Enrichment API] Error for ${row.restaurant_name}:`, err));
+    }
+
+    return NextResponse.json({ status: 'done', processed: pendingRows.length });
+  } catch (err) {
+    console.error('[Enrichment API] Fatal error on GET:', err);
+    return NextResponse.json({ error: 'Internal error' }, { status: 500 });
+  }
 }
